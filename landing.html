@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NexTrip - Plan Your Journey</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        background: url("loginbg.jpg") no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        color: white;
+      }
+
+      .navbar {
+        padding: 20px 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: bold;
+        text-decoration: none;
+        color: white;
+        display: flex;
+        align-items: center;
+      }
+
+      .logo img {
+        height: 40px;
+        margin-right: 10px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 30px;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        transition: color 0.3s;
+      }
+
+      .nav-links a:hover {
+        color: #7fffd4;
+      }
+
+      .nav-links a.active {
+        border-bottom: 2px solid white;
+      }
+
+      .main-content {
+        text-align: center;
+        padding-top: 150px;
+        animation: fadeIn 1.5s ease-in;
+      }
+
+      .main-heading {
+        font-size: 64px;
+        margin-bottom: 20px;
+      }
+
+      .sub-heading {
+        font-size: 72px;
+        color: #7fffd4;
+        margin-bottom: 40px;
+        text-shadow: 0 0 15px #7fffd4;
+      }
+
+      .plan-trip-btn {
+        background-color: #00a896;
+        color: white;
+        padding: 15px 40px;
+        border: none;
+        border-radius: 25px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: transform 0.3s, background-color 0.3s;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .plan-trip-btn:hover {
+        transform: scale(1.05);
+        background-color: #008577;
+      }
+
+      .features {
+        display: flex;
+        justify-content: space-around;
+        padding: 100px 50px;
+        animation: slideUp 1s ease-in;
+      }
+
+      .feature {
+        text-align: center;
+        max-width: 250px;
+      }
+
+      .feature-icon {
+        font-size: 40px;
+        margin-bottom: 15px;
+      }
+
+      .feature h3 {
+        margin-bottom: 10px;
+        color: white;
+      }
+
+      .feature p {
+        color: #ccc;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="#" class="logo">
+        <img src="logo.png" alt="NexTrip Logo" />
+        nexTrip
+      </a>
+      <div class="nav-links">
+        <a href="#" class="active">Home</a>
+        <a href="#">About</a>
+        <a href="#">Trips</a>
+        <a href="#">Gallery</a>
+        <a href="#">Contact</a>
+      </div>
+    </nav>
+
+    <div class="main-content">
+      <h1 class="main-heading">All you need for your</h1>
+      <h2 class="sub-heading">nexTrip</h2>
+      <a href="index.html" class="plan-trip-btn">Plan your trip</a>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">✈️</div>
+        <h3>Lowest prices on</h3>
+        <p>Flights</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🏨</div>
+        <h3>Peaceful</h3>
+        <p>Hotels</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🧳</div>
+        <h3>Make your custom</h3>
+        <p>Vacation plan</p>
+      </div>
+    </div>
+  </body>
+</html>

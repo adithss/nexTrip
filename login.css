@@ -1,0 +1,156 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(120deg, #2980b9, #8e44ad);
+  overflow: hidden;
+}
+
+.wrapper,
+.register {
+  position: relative;
+  width: 400px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  transform: scale(1);
+  transition: all 0.3s ease;
+}
+
+.wrapper:hover,
+.register:hover {
+  transform: scale(1.01);
+}
+
+.register {
+  display: none;
+}
+
+h1 {
+  font-size: 2.5em;
+  text-align: center;
+  margin-bottom: 30px;
+  background: linear-gradient(45deg, #2980b9, #8e44ad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
+
+.input-box {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.input-box input {
+  width: 100%;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.input-box input:focus {
+  outline: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  border-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+.btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(45deg, #2980b9, #8e44ad);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  margin-bottom: 25px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, #3498db, #9b59b6);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.login-re {
+  text-align: center;
+  font-size: 15px;
+  color: #666;
+}
+
+.login-re a {
+  color: #2980b9;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.login-re a:hover {
+  color: #8e44ad;
+  text-decoration: underline;
+}
+
+/* Add animation for form switching */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wrapper,
+.register {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .wrapper,
+  .register {
+    width: 90%;
+    padding: 30px;
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+}
+
+/* Add placeholder styling */
+::placeholder {
+  color: #999;
+  opacity: 0.8;
+}
+
+/* Add focus styles for better accessibility */
+input:focus {
+  outline: none;
+  border-color: #2980b9;
+}
