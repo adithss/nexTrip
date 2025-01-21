@@ -1,3 +1,4 @@
+<!-- home.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -29,6 +30,7 @@
         position: fixed;
         width: 100%;
         z-index: 1000;
+        background: rgba(0, 0, 0, 0.1);
       }
 
       .logo {
@@ -147,6 +149,26 @@
         border-radius: 25px;
         background: white;
         font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .search-group input.error {
+        border: 2px solid #ff4444;
+        background-color: #fff8f8;
+      }
+
+      .search-group input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(60, 196, 160, 0.3);
+      }
+
+      .error-message {
+        position: absolute;
+        bottom: -20px;
+        left: 10px;
+        color: #ff4444;
+        font-size: 0.8rem;
+        display: none;
       }
 
       .search-btn {
@@ -159,6 +181,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: transform 0.2s ease;
+      }
+
+      .search-btn:hover {
+        transform: scale(1.05);
       }
 
       .search-btn svg {
@@ -253,15 +280,26 @@
           <div class="search-group">
             <input
               type="text"
-              placeholder="Enter your destination"
+              placeholder="Enter your destination (e.g., London)"
               id="location"
+              required
             />
+            <div class="error-message"></div>
           </div>
           <div class="search-group">
-            <input type="date" class="date-input" id="travel-date" />
+            <input type="date" class="date-input" id="travel-date" required />
+            <div class="error-message"></div>
           </div>
           <div class="search-group">
-            <input type="number" placeholder="Set max price" id="max-price" />
+            <input
+              type="number"
+              placeholder="Max price (e.g., 1000)"
+              id="max-price"
+              min="1"
+              step="1"
+              required
+            />
+            <div class="error-message"></div>
           </div>
           <button class="search-btn">
             <svg viewBox="0 0 24 24">
@@ -276,9 +314,101 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
+        // Set up date input constraints
         const dateInput = document.getElementById("travel-date");
         const today = new Date().toISOString().split("T")[0];
         dateInput.min = today;
+
+        function showError(inputElement, message) {
+          inputElement.classList.add("error");
+          const errorDiv =
+            inputElement.parentElement.querySelector(".error-message");
+          errorDiv.textContent = message;
+          errorDiv.style.display = "block";
+        }
+
+        function clearError(inputElement) {
+          inputElement.classList.remove("error");
+          const errorDiv =
+            inputElement.parentElement.querySelector(".error-message");
+          errorDiv.style.display = "none";
+        }
+
+        function validateLocation(location) {
+          if (!location || location.trim().length === 0) {
+            throw new Error("Please enter a destination");
+          }
+          // Remove invalid characters
+          return location.trim().replace(/[^\w\s,-]/g, "");
+        }
+
+        function validatePrice(price) {
+          const numPrice = parseFloat(price);
+          if (isNaN(numPrice) || numPrice <= 0) {
+            throw new Error("Please enter a valid price");
+          }
+          return numPrice;
+        }
+
+        function validateDate(date) {
+          if (!date) {
+            throw new Error("Please select a travel date");
+          }
+          const selectedDate = new Date(date);
+          const currentDate = new Date();
+
+          if (selectedDate < currentDate) {
+            throw new Error("Please select a future date");
+          }
+          return date;
+        }
+
+        // Add input validation events
+        const locationInput = document.getElementById("location");
+        const maxPriceInput = document.getElementById("max-price");
+
+        locationInput.addEventListener("input", function () {
+          clearError(this);
+        });
+
+        maxPriceInput.addEventListener("input", function () {
+          clearError(this);
+        });
+
+        dateInput.addEventListener("input", function () {
+          clearError(this);
+        });
+
+        // Add search button handler
+        const searchBtn = document.querySelector(".search-btn");
+        searchBtn.addEventListener("click", () => {
+          try {
+            const location = validateLocation(locationInput.value);
+            const date = validateDate(dateInput.value);
+            const maxPrice = validatePrice(maxPriceInput.value);
+
+            const searchParams = {
+              location: location,
+              date: date,
+              maxPrice: maxPrice,
+            };
+
+            console.log("Storing search parameters:", searchParams);
+            localStorage.setItem("searchParams", JSON.stringify(searchParams));
+
+            window.location.href = "results.html";
+          } catch (error) {
+            if (error.message.includes("destination")) {
+              showError(locationInput, error.message);
+            } else if (error.message.includes("price")) {
+              showError(maxPriceInput, error.message);
+            } else if (error.message.includes("date")) {
+              showError(dateInput, error.message);
+            } else {
+              alert(error.message);
+            }
+          }
+        });
       });
     </script>
   </body>
