@@ -1,0 +1,62 @@
+<!-- itinerary.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nexTrip - Create Itinerary</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+      rel="stylesheet"
+    />
+    <link href="itinerary.css" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="home.html" class="logo">nexTrip</a>
+      <div class="nav-links">
+        <a href="home.html">HOME</a>
+        <a href="#">ABOUT</a>
+        <a href="#">SERVICES</a>
+        <a href="#">TOUR</a>
+        <a href="view-itinerary.html">MY ITINERARIES</a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="days-selector">
+        <h2>Create Your Itinerary</h2>
+        <div class="trip-info" id="tripInfo"></div>
+        <div class="days-input">
+          <label for="numDays">Select number of days:</label>
+          <select id="numDays" onchange="generateDays()">
+            <option value="">Select...</option>
+            <option value="1">1 Day</option>
+            <option value="2">2 Days</option>
+            <option value="3">3 Days</option>
+            <option value="4">4 Days</option>
+            <option value="5">5 Days</option>
+            <option value="6">6 Days</option>
+            <option value="7">7 Days</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="daysContainer"></div>
+
+      <div class="action-buttons">
+        <button class="save-btn" onclick="saveItinerary()">
+          Save Itinerary
+        </button>
+        <button
+          class="view-btn"
+          onclick="window.location.href='view-itinerary.html'"
+        >
+          View Saved Itineraries
+        </button>
+      </div>
+    </div>
+
+    <script src="itinerary.js"></script>
+  </body>
+</html>

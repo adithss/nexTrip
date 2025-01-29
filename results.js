@@ -279,6 +279,18 @@ document.addEventListener("DOMContentLoaded", () => {
           // Sort results by rating
           filteredResults.sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
+          // Store the results in localStorage based on type
+          const storedResults = JSON.parse(
+            localStorage.getItem("searchResults") || "{}"
+          );
+          storedResults[type] = filteredResults.map((place) => ({
+            name: place.name,
+            photo: place.photos ? place.photos[0].getUrl() : null,
+            rating: place.rating,
+            address: place.vicinity || place.formatted_address,
+          }));
+          localStorage.setItem("searchResults", JSON.stringify(storedResults));
+
           // Add places with staggered animation
           for (let i = 0; i < filteredResults.length; i++) {
             const card = await createPlaceCard(filteredResults[i]);

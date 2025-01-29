@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Travel Itinerary</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f8ff;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background-color: #4caf50;
+        color: white;
+        text-align: center;
+        padding: 20px;
+      }
+      main {
+        padding: 20px;
+      }
+      form {
+        margin: 20px 0;
+      }
+      input,
+      textarea {
+        padding: 10px;
+        margin: 10px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      .itinerary-view {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .itinerary-view h3 {
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Travel Itinerary Creator</h1>
+    </header>
+
+    <main>
+      <form id="itineraryForm">
+        <h3>Create Your Travel Itinerary</h3>
+        <label for="destination">Destination:</label>
+        <input type="text" id="destination" name="destination" required />
+
+        <label for="dates">Travel Dates:</label>
+        <input type="text" id="dates" name="dates" required />
+
+        <label for="activities">Activities:</label>
+        <textarea
+          id="activities"
+          name="activities"
+          rows="4"
+          required
+        ></textarea>
+
+        <label for="accommodation">Accommodation:</label>
+        <input type="text" id="accommodation" name="accommodation" required />
+
+        <button type="submit">Add to Itinerary</button>
+      </form>
+
+      <div class="itinerary-view" id="itineraryView">
+        <h3>Your Itinerary</h3>
+        <ul id="itineraryList">
+          <!-- Itinerary details will appear here -->
+        </ul>
+      </div>
+    </main>
+
+    <script>
+      document
+        .getElementById("itineraryForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const destination = document.getElementById("destination").value;
+          const dates = document.getElementById("dates").value;
+          const activities = document.getElementById("activities").value;
+          const accommodation = document.getElementById("accommodation").value;
+
+          const itineraryList = document.getElementById("itineraryList");
+          const listItem = document.createElement("li");
+          listItem.innerHTML = `<strong>${destination}</strong> (${dates})<br>
+                              <strong>Activities:</strong> ${activities}<br>
+                              <strong>Accommodation:</strong> ${accommodation}<br><br>`;
+          itineraryList.appendChild(listItem);
+
+          // Clear the form fields
+          document.getElementById("itineraryForm").reset();
+        });
+    </script>
+  </body>
+</html>
