@@ -1,4 +1,3 @@
-<!-- home.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -18,9 +17,12 @@
       }
 
       body {
-        background-image: url("blur.png");
+        background-image: url(blur.png);
         min-height: 100vh;
         overflow-x: hidden;
+        width: 100vw;
+        background-repeat: no-repeat;
+        background-size: cover;
       }
 
       .navbar {
@@ -59,7 +61,7 @@
       }
 
       .logout-btn {
-        background: #3cc4a0;
+        background: linear-gradient(to right, #01738e, #04aaa2);
         color: white;
         border: none;
         padding: 0.5rem 1.5rem;
@@ -126,7 +128,7 @@
         bottom: 10%;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(60, 196, 160, 0.9);
+        background: linear-gradient(to right, #01738e, #04aaa2);
         padding: 1rem;
         border-radius: 50px;
         display: flex;
@@ -209,6 +211,184 @@
         border-radius: 20px;
       }
 
+      .curated-destinations {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+      }
+      .curated-for-you {
+        margin-top: -5rem;
+        text-align: center;
+        font-size: 3.4rem;
+        font-weight: bold;
+        color: #ffffff;
+        text-transform: uppercase;
+        padding: 1rem 0;
+        position: relative;
+        font-family: system-ui;
+        text-shadow: 0 0 10px #c8f1f1;
+      }
+
+      .curated-for-you::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(to right, #01738e, #04aaa2);
+      }
+      .destination-card {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        margin: 0 1rem;
+        overflow: hidden;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .destination-card:hover {
+        transform: scale(1.05);
+      }
+
+      .selected-destination:hover .destination-overlay {
+        opacity: 1;
+      }
+      .destination-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .destination-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          to bottom,
+          rgba(1, 115, 142, 0.5),
+          rgba(4, 170, 162, 0.6)
+        );
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 1rem;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .destination-card:hover .destination-overlay {
+        opacity: 1;
+      }
+
+      .destination-overlay h3 {
+        margin-bottom: 0.5rem;
+      }
+      .selected-destination .destination-overlay {
+        opacity: 0;
+      }
+
+      .destination-overlay p {
+        margin-top: 0.5rem;
+      }
+
+      .selected-destination {
+        width: 240px;
+        height: 240px;
+        margin-top: -20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .destination-details {
+        margin-top: 3rem;
+        text-align: center;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 2rem;
+        background: rgba(1, 115, 142, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transform: translateY(0);
+        transition: all 0.5s ease;
+        animation: floatIn 1s ease-out;
+      }
+
+      .destination-details:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .destination-details h3 {
+        font-size: 2.5rem;
+        color: #ffffff;
+        margin-bottom: 1.5rem;
+        font-weight: bold;
+        position: relative;
+        display: inline-block;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        animation: slideIn 0.8s ease-out;
+        text-shadow: 0 0 2px #d9f1f0;
+      }
+      .destination-details h3::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(to right, #01738e, #04aaa2);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.5s ease;
+      }
+
+      .destination-details:hover h3::after {
+        transform: scaleX(1);
+      }
+
+      .destination-details p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #e1f9ff;
+        text-align: justify;
+        opacity: 0;
+        animation: fadeIn 1s ease-out forwards 0.3s;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        border-left: 3px solid rgba(4, 170, 162, 0.3);
+        background: rgba(1, 115, 142, 0.05);
+        border-radius: 0 10px 10px 0;
+        margin-top: 1rem;
+      }
+
+      @keyframes floatIn {
+        0% {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideIn {
+        0% {
+          opacity: 0;
+          transform: translateX(-50px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -250,6 +430,30 @@
           transform: translateY(0);
         }
       }
+      /* Update the animation for destination cards to make them smoother */
+      .destination-card {
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .destination-card:hover {
+        transform: scale(1.05) translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .selected-destination {
+        animation: pulseGlow 2s infinite;
+      }
+      @keyframes pulseGlow {
+        0% {
+          box-shadow: 0 4px 20px rgba(4, 170, 162, 0.2);
+        }
+        50% {
+          box-shadow: 0 4px 30px rgba(4, 170, 162, 0.4);
+        }
+        100% {
+          box-shadow: 0 4px 20px rgba(4, 170, 162, 0.2);
+        }
+      }
     </style>
   </head>
   <body>
@@ -260,7 +464,7 @@
         <a href="#">ABOUT</a>
         <a href="#">SERVICES</a>
         <a href="#">TOUR</a>
-        <a href="#">CONTACT</a>
+        <a href="manage-itineraries.html">MY ITINERARIES</a>
       </div>
       <button class="logout-btn">LOGOUT</button>
     </nav>
@@ -312,6 +516,67 @@
       </div>
     </div>
 
+    <h2 class="curated-for-you">Curated for you</h2>
+
+    <div class="curated-destinations">
+      <div class="destination-card" data-destination="bali">
+        <img src="bali.jpg" alt="Bali" />
+        <div class="destination-overlay">
+          <h3>Bali</h3>
+          <p>Indonesia</p>
+        </div>
+      </div>
+      <div class="destination-card" data-destination="sicily">
+        <img src="sicily.jpg" alt="Sicily" />
+        <div class="destination-overlay">
+          <h3>Sicily</h3>
+          <p>Italy</p>
+        </div>
+      </div>
+      <div
+        class="destination-card selected-destination"
+        data-destination="paris"
+      >
+        <img src="paris.jpg" alt="Paris" />
+        <div class="destination-overlay">
+          <h3>Paris</h3>
+          <p>France</p>
+        </div>
+      </div>
+      <div class="destination-card" data-destination="new-delhi">
+        <img src="newdelhi.jpg" alt="New Delhi" />
+        <div class="destination-overlay">
+          <h3>New Delhi</h3>
+          <p>India</p>
+        </div>
+      </div>
+      <div class="destination-card" data-destination="newyork">
+        <img src="newyork.jpg" alt="Newyork" />
+        <div class="destination-overlay">
+          <h3>Newyork</h3>
+          <p>USA</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="destination-details">
+      <h3>Paris</h3>
+      <p>
+        Paris lives up to its hype: A city with unbelievable food and culture,
+        plus stunning views everywhere you turn. With 18 arrondissements, it’s a
+        lot to see in one trip, but each neighbourhood has a personality all its
+        own. You can’t miss the iconic 7th, where art and history meet—there’s
+        the Eiffel Tower, sure, but the impressive Musée du quai Branly is just
+        a short walk away. It houses an amazing collection of indigenous art.
+        Or, hit up Montmartre (the 18th), with its boho shops and cosy
+        brasseries. It’s a must-stop on the way up or down from Sacre Coeur.
+        While the French practically invented fine dining, don’t skip the street
+        food—Paris has world-class kebabs and falafel. But no matter where you
+        are, be sure to pop into a sidewalk cafe, sip a glass of wine, and
+        people watch—it’s the way to get a taste of true Parisian culture.
+      </p>
+    </div>
+
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // Set up date input constraints
@@ -338,7 +603,6 @@
           if (!location || location.trim().length === 0) {
             throw new Error("Please enter a destination");
           }
-          // Remove invalid characters
           return location.trim().replace(/[^\w\s,-]/g, "");
         }
 
@@ -356,7 +620,6 @@
           }
           const selectedDate = new Date(date);
           const currentDate = new Date();
-
           if (selectedDate < currentDate) {
             throw new Error("Please select a future date");
           }
@@ -393,9 +656,7 @@
               maxPrice: maxPrice,
             };
 
-            console.log("Storing search parameters:", searchParams);
             localStorage.setItem("searchParams", JSON.stringify(searchParams));
-
             window.location.href = "results.html";
           } catch (error) {
             if (error.message.includes("destination")) {
@@ -409,6 +670,77 @@
             }
           }
         });
+        const destinationCards = document.querySelectorAll(".destination-card");
+        destinationCards.forEach((card) => {
+          card.addEventListener("click", () => {
+            const destination = card.dataset.destination;
+            // Update the search inputs based on the selected destination
+            document.getElementById("location").value = destination;
+            // Clear any existing errors
+            clearError(document.getElementById("location"));
+            // Scroll to the search bar
+            document
+              .querySelector(".search-bar")
+              .scrollIntoView({ behavior: "smooth" });
+
+            // Update the destination details
+            const destinationDetails = document.querySelector(
+              ".destination-details"
+            );
+            const destinationTitle = destinationDetails.querySelector("h3");
+            const destinationDescription =
+              destinationDetails.querySelector("p");
+
+            switch (destination) {
+              case "bali":
+                destinationTitle.textContent = "Bali";
+                destinationDescription.textContent =
+                  "Bali packs a lot into one small island— from breathtaking waterfalls like Sekumpul in the north to the white sand beaches of Nyang Nyang in the south. Whatever you’re seeking, you’ll probably find: surf-able waves in Batu Bolong, all-night clubs in Seminyak, luxury clifftop hotels in Nusa Dua, and spiritual refuges all around. Snap a pic at the Gateway to Heaven, cut through the jungle to the hidden Gunung Kawi Temple, and catch the sunset and a traditional fire dance at Uluwatu Temple. Just don’t miss the markets—hunt for handcrafted artwork and textiles at the Sukawati Art Market, or snack on street food staples like satay and bakso at the Sindhu Night Market. For even more tastes and things to do, check out our recs below.";
+                break;
+              case "sicily":
+                destinationTitle.textContent = "Sicily";
+                destinationDescription.textContent =
+                  "Sicily is unlike anywhere else in Italy. Sure, the Mediterranean island offers everything that makes Italy a major destination: beaches, wine, food, and architecture—but all with a Sicilian twist. Rustic fare makes the most of local produce from rich cannoli to crispy creamy arancini. When you’re ready to get up from the table, tour the Baroque architecture of Catania, the holy monuments of Agrigento, and beach clubs at Mazzaro. Winemaking on the island dates back to the Greeks and the volcanic soil leads to excellent Nero d’Avola native grapes. Offshore islands give more chances to explore. Lampedusa is the spot for white-sand beaches and clear water for snorkelling, while the volcanic island of Vulcano is a favourite for hot springs. Want more Sicilian magic? We’ve got additional recs below";
+                break;
+              case "paris":
+                destinationTitle.textContent = "Paris";
+                destinationDescription.textContent =
+                  "Paris lives up to its hype: A city with unbelievable food and culture, plus stunning views everywhere you turn. With 18 arrondissements, its a lot to see in one trip, but each neighborhood has a personality all its own. You cant miss the iconic 7th, where art and history meet—theres the Eiffel Tower, sure, but the impressive Musée du quai Branly is just a short walk away. It houses an amazing collection of indigenous art. Or, hit up Montmartre (the 18th), with its boho shops and cozy brasseries. Its a must-stop on the way up or down from Sacré Cœur. While the French practically invented fine dining, dont skip the street food—Paris has world-class kebabs and falafel. But no matter where you are, be sure to pop into a sidewalk cafe, sip a glass of wine, and people watch—its the way to get a taste of true Parisian culture.";
+                break;
+              case "new-delhi":
+                destinationTitle.textContent = "New Delhi";
+                destinationDescription.textContent =
+                  "Chaotic and colourful, New Delhi is full-on sensory overload. The Old Delhi neighbourhood is a tangle where people, cows, and rickshaws all share the road. In the maze of Chandni Chowk market, vendors sell sizzling kebabs, bright orange marigolds, and souvenirs—spices, puppets, pashminas, jewellery, and so much more. In trendy Haus Khas Village, medieval sites sit next to boutiques, bars, and cool cafes. Lodi Colony, an upscale area built under British rule, has been transformed into an arts district with over 50 vivid murals now covering its walls. The capital city and its surrounds have an incredible history, as you can tell from the sheer number of UNESCO World Heritage Sites: the early 13th-century Qutub Minar, a sandstone minaret, the 17th-century Red Fort of the Mughal emperors, and Humayun’s Tomb, which inspired the Taj Mahal.";
+                break;
+              case "newyork":
+                destinationTitle.textContent = "Newyork";
+                destinationDescription.textContent =
+                  "The tallest skyscrapers, the biggest museums, the cheesiest pizza. New York City takes everything to the max. It’s easy to see why it’s the most-visited place in the U.S.: Whether you want to check out historic landmarks, catch a Broadway show, or stroll the streets of Brooklyn, there’s no wrong way to do it—and something new to discover every time you go. Spend the day neighbourhood-hopping, from the family-friendly Upper West Side packed with playgrounds and cute restaurants to the gritty-but-cool Lower East Side, each has its own vibe. Browse art galleries in Chelsea, go shopping in SoHo, then grab a drink in the East Village. Or, take the subway (or walk across the Brooklyn Bridge) and cruise the cobblestone streets in Dumbo. Want some nature? It’s got that, too. Have a picnic in Central Park, hit the High Line, or hop on a ferry and see the city from the sea. That’s just the start—we’ve got more.";
+                break;
+            }
+
+            // Remove the selected class from all cards and add it to the clicked card
+            destinationCards.forEach((card) =>
+              card.classList.remove("selected-destination")
+            );
+            card.classList.add("selected-destination");
+          });
+        });
+
+        // Set the initial selected destination to Paris
+        const parisCard = document.querySelector(
+          '.destination-card[data-destination="paris"]'
+        );
+        parisCard.classList.add("selected-destination");
+        const destinationTitle = document.querySelector(
+          ".destination-details h3"
+        );
+        const destinationDescription = document.querySelector(
+          ".destination-details p"
+        );
+        destinationTitle.textContent = "Paris";
+        destinationDescription.textContent =
+          "Paris lives up to its hype: A city with unbelievable food and culture, plus stunning views everywhere you turn. With 18 arrondissements, its a lot to see in one trip, but each neighborhood has a personality all its own. You cant miss the iconic 7th, where art and history meet—theres the Eiffel Tower, sure, but the impressive Musée du quai Branly is just a short walk away. It houses an amazing collection of indigenous art. Or, hit up Montmartre (the 18th), with its boho shops and cozy brasseries. Its a must-stop on the way up or down from Sacré Cœur. While the French practically invented fine dining, dont skip the street food—Paris has world-class kebabs and falafel. But no matter where you are, be sure to pop into a sidewalk cafe, sip a glass of wine, and people watch—its the way to get a taste of true Parisian culture.";
       });
     </script>
   </body>
