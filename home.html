@@ -46,6 +46,8 @@
         display: flex;
         gap: 2rem;
         animation: fadeInDown 1s ease;
+        background: linear-gradient(to right, #01738e, #04aaa2);
+        border-radius: 50px;
       }
 
       .nav-links a {
@@ -54,6 +56,7 @@
         padding: 0.5rem 1rem;
         border-radius: 25px;
         transition: background 0.3s;
+        font-size: 1.02vw;
       }
 
       .nav-links a:hover {
@@ -460,13 +463,15 @@
     <nav class="navbar">
       <div class="logo">nexTrip</div>
       <div class="nav-links">
-        <a href="#">HOME</a>
+        <a href="home.html" class="active">HOME</a>
         <a href="#">ABOUT</a>
-        <a href="#">SERVICES</a>
-        <a href="#">TOUR</a>
+        <a href="budget_tracker.html">Budget tracking</a>
+        <a href="#">My Docs</a>
         <a href="manage-itineraries.html">MY ITINERARIES</a>
       </div>
-      <button class="logout-btn">LOGOUT</button>
+      <button onclick="location.href='/logout'" class="logout-btn">
+        LOGOUT
+      </button>
     </nav>
 
     <div class="main-container">

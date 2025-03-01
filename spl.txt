@@ -1,0 +1,50 @@
+-- budget_tracker_tables.sql
+
+-- Table for groups
+CREATE TABLE trip_groups (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  created_by VARCHAR(50) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table for group members
+CREATE TABLE group_members (
+  id SERIAL PRIMARY KEY,
+  group_id INTEGER REFERENCES trip_groups(id) ON DELETE CASCADE,
+  userid VARCHAR(50) NOT NULL,
+  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(group_id, userid)
+);
+
+-- Table for expenses
+CREATE TABLE expenses (
+  id SERIAL PRIMARY KEY,
+  group_id INTEGER REFERENCES trip_groups(id) ON DELETE CASCADE,
+  description VARCHAR(255) NOT NULL,
+  amount DECIMAL(10, 2) NOT NULL,
+  paid_by VARCHAR(50) NOT NULL,
+  expense_date DATE NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table for expense shares
+CREATE TABLE expense_shares (
+  id SERIAL PRIMARY KEY,
+  expense_id INTEGER REFERENCES expenses(id) ON DELETE CASCADE,
+  userid VARCHAR(50) NOT NULL,
+  amount DECIMAL(10, 2) NOT NULL,
+  is_paid BOOLEAN DEFAULT FALSE
+);
+
+-- Table for settlements
+CREATE TABLE settlements (
+  id SERIAL PRIMARY KEY,
+  group_id INTEGER REFERENCES trip_groups(id) ON DELETE CASCADE,
+  from_user VARCHAR(50) NOT NULL,
+  to_user VARCHAR(50) NOT NULL,
+  amount DECIMAL(10, 2) NOT NULL,
+  settled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_confirmed BOOLEAN DEFAULT FALSE
+);

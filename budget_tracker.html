@@ -1,0 +1,169 @@
+<!-- budget_tracker.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Open Sauce"
+      rel="stylesheet"
+    />
+    <title>Budget Tracker</title>
+    <link rel="stylesheet" href="budget_tracker.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">nexTrip</div>
+      <div class="nav-links">
+        <a href="#">HOME</a>
+        <a href="#">ABOUT</a>
+        <a href="budget_tracker.html" class="active">Budget tracking</a>
+        <a href="#">My Docs</a>
+        <a href="manage-itineraries.html">MY ITINERARIES</a>
+      </div>
+      <button onclick="location.href='/logout'" class="logout-btn">
+        LOGOUT
+      </button>
+    </nav>
+
+    <div class="container">
+      <h1>Track your budget</h1>
+
+      <div id="trip-selection" class="section">
+        <h2 class="emptygroup">Your Groups</h2>
+        <div id="trip-list" class="trip-grid">
+          <!-- Trip cards will be added here dynamically -->
+        </div>
+        <button id="add-trip-btn" class="primary-btn">Add new trip</button>
+      </div>
+
+      <div id="new-trip-form" class="section hidden">
+        <h2>New group</h2>
+        <div class="form-group">
+          <label for="trip-name">Group Name</label>
+          <input type="text" id="trip-name" placeholder="Enter group name" />
+        </div>
+        <button id="create-trip-btn" class="primary-btn">Create group</button>
+        <button id="cancel-trip-btn" class="secondary-btn">Cancel</button>
+      </div>
+
+      <div id="trip-dashboard" class="section hidden">
+        <h2 id="trip-title">Trip Name</h2>
+
+        <div class="dashboard-actions">
+          <button id="split-bill-btn" class="primary-btn">Split a bill</button>
+          <button id="view-expenses-btn" class="primary-btn">
+            View expenses
+          </button>
+          <button id="add-member-btn" class="primary-btn">Add person</button>
+        </div>
+
+        <div id="split-bill-form" class="subsection hidden">
+          <h3>Split a bill</h3>
+
+          <div class="category-selection">
+            <div class="category-item active" data-category="Food">
+              <div class="category-icon food-icon"></div>
+              <span>Food</span>
+            </div>
+            <div class="category-item" data-category="Travel">
+              <div class="category-icon travel-icon"></div>
+              <span>Travel</span>
+            </div>
+            <div class="category-item" data-category="Others">
+              <div class="category-icon others-icon"></div>
+              <span>Others</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Total amount</label>
+              <input
+                type="number"
+                id="bill-amount"
+                placeholder="Enter the total bill amount"
+                step="0.01"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Description</label>
+              <input
+                type="text"
+                id="bill-description"
+                placeholder="What was this expense for?"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="bill-date" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Select persons to split with</label>
+            <div id="split-members" class="member-selection">
+              <!-- Members will be added here dynamically -->
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button id="save-bill-btn" class="primary-btn">Split</button>
+            <button id="cancel-bill-btn" class="secondary-btn">Cancel</button>
+          </div>
+        </div>
+
+        <div id="expense-summary" class="subsection hidden">
+          <h3>Expense Summary</h3>
+
+          <div class="summary-tabs">
+            <button id="balances-tab" class="tab-btn active">Balances</button>
+            <button id="expenses-tab" class="tab-btn">Expenses</button>
+          </div>
+
+          <div id="balances-content" class="tab-content">
+            <div id="user-balances">
+              <!-- Balance info will be added here dynamically -->
+            </div>
+
+            <h4>Settlements</h4>
+            <div id="settlements-list">
+              <!-- Settlement suggestions will be added here dynamically -->
+            </div>
+          </div>
+
+          <div id="expenses-content" class="tab-content hidden">
+            <div id="expenses-list">
+              <!-- Expenses will be added here dynamically -->
+            </div>
+          </div>
+
+          <button id="close-summary-btn" class="secondary-btn">Close</button>
+        </div>
+
+        <div id="add-member-form" class="subsection hidden">
+          <h3>Add a person</h3>
+
+          <div class="form-group">
+            <label for="member-name">Username</label>
+            <input type="text" id="member-name" placeholder="Enter username" />
+          </div>
+
+          <div class="form-actions">
+            <button id="save-member-btn" class="primary-btn">Add</button>
+            <button id="cancel-member-btn" class="secondary-btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="budget_tracker.js"></script>
+  </body>
+</html>

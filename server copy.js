@@ -14,24 +14,17 @@ app.use(
 );
 app.use(express.json());
 
-// Add session middleware BEFORE defining routes
+// Add session middleware
 app.use(
   session({
-    secret: "your-secret-key", // Change this to a strong, random secret in production
+    secret: "your-secret-key",
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      secure: false, // Set to true if using https
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      httpOnly: true,
-    },
+    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 },
   })
 );
 
-// Serve static files BEFORE defining specific routes
-app.use(express.static(__dirname));
-
-// Now define specific routes that should override static files
+// Define routes BEFORE serving static files
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "landing.html"));
 });
@@ -39,6 +32,8 @@ app.get("/", (req, res) => {
 app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
+
+app.use(express.static(__dirname));
 
 const pool = new Pool({
   user: "postgres",
@@ -48,8 +43,8 @@ const pool = new Pool({
   port: 5432,
 });
 
-// Create all necessary tables if they don't exist
-const createTables = async () => {
+// Create login table if it doesn't exist
+const createLoginTable = async () => {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS login (
@@ -59,94 +54,40 @@ const createTables = async () => {
         password VARCHAR(255) NOT NULL
       );
     `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS itineraries (
-        id SERIAL PRIMARY KEY,
-        user_id VARCHAR(50) NOT NULL REFERENCES login(userid),
-        itinerary_name VARCHAR(100) NOT NULL,
-        location VARCHAR(100) NOT NULL,
-        travel_date DATE,
-        number_of_days INTEGER NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS daily_activities (
-        id SERIAL PRIMARY KEY,
-        itinerary_id INTEGER REFERENCES itineraries(id) ON DELETE CASCADE,
-        day_number INTEGER NOT NULL,
-        hotel_name VARCHAR(100),
-        hotel_photo TEXT,
-        restaurant_name VARCHAR(100),
-        restaurant_photo TEXT,
-        attraction_name VARCHAR(100),
-        attraction_photo TEXT,
-        activity_name VARCHAR(100),
-        activity_photo TEXT
-      );
-    `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS trip_groups (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        created_by VARCHAR(50) NOT NULL REFERENCES login(userid),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS group_members (
-        id SERIAL PRIMARY KEY,
-        group_id INTEGER REFERENCES trip_groups(id) ON DELETE CASCADE,
-        userid VARCHAR(50) REFERENCES login(userid),
-        UNIQUE(group_id, userid)
-      );
-    `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS expenses (
-        id SERIAL PRIMARY KEY,
-        group_id INTEGER REFERENCES trip_groups(id) ON DELETE CASCADE,
-        description VARCHAR(255) NOT NULL,
-        amount DECIMAL(10,2) NOT NULL,
-        paid_by VARCHAR(50) REFERENCES login(userid),
-        expense_date DATE NOT NULL,
-        category VARCHAR(50),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS expense_shares (
-        id SERIAL PRIMARY KEY,
-        expense_id INTEGER REFERENCES expenses(id) ON DELETE CASCADE,
-        userid VARCHAR(50) REFERENCES login(userid),
-        amount DECIMAL(10,2) NOT NULL
-      );
-    `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS settlements (
-        id SERIAL PRIMARY KEY,
-        group_id INTEGER REFERENCES trip_groups(id) ON DELETE CASCADE,
-        from_user VARCHAR(50) REFERENCES login(userid),
-        to_user VARCHAR(50) REFERENCES login(userid),
-        amount DECIMAL(10,2) NOT NULL,
-        settled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    console.log("All tables created successfully");
+    console.log("Login table created successfully");
   } catch (error) {
-    console.error("Error creating tables:", error);
+    console.error("Error creating login table:", error);
   }
 };
 
-// Call the function to create tables
-createTables();
+// Function to create user-specific itinerary table
+const createUserTable = async (mailid) => {
+  try {
+    // Replace dots and special characters in email to create valid table name
+    const tableName = `itinerary_${mailid.replace(/[@.]/g, "_")}`;
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS ${tableName} (
+        id SERIAL PRIMARY KEY,
+        itinerary_name VARCHAR(100) NOT NULL,
+        number_of_days INTEGER NOT NULL,
+        location VARCHAR(100) NOT NULL,
+        hotel VARCHAR(100),
+        restaurant TEXT[],
+        attractions TEXT[],
+        activities TEXT[],
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log(`Table ${tableName} created successfully`);
+    return true;
+  } catch (error) {
+    console.error(`Error creating table for ${mailid}:`, error);
+    return false;
+  }
+};
+
+createLoginTable();
 
 // Register endpoint
 app.post("/register", async (req, res) => {
@@ -161,6 +102,13 @@ app.post("/register", async (req, res) => {
       "INSERT INTO login (userid, mailid, password) VALUES ($1, $2, $3) RETURNING id",
       [username, email, hashedPassword]
     );
+
+    // Create user-specific itinerary table
+    const tableCreated = await createUserTable(email);
+
+    if (!tableCreated) {
+      throw new Error("Failed to create user itinerary table");
+    }
 
     res.json({ success: true, message: "User registered successfully" });
   } catch (error) {
@@ -193,6 +141,7 @@ app.post("/login", async (req, res) => {
     }
 
     const user = result.rows[0];
+    // Fixed the password verification - was using hash instead of compare
     const validPassword = await bcrypt.compare(password, user.password);
 
     if (!validPassword) {
@@ -204,48 +153,31 @@ app.post("/login", async (req, res) => {
     // Set session variables
     req.session.userid = user.userid;
     req.session.mailid = user.mailid;
-    req.session.isLoggedIn = true; // Add this flag for easier checks
 
-    // Save session before responding
-    req.session.save((err) => {
-      if (err) {
-        console.error("Session save error:", err);
-        return res
-          .status(500)
-          .json({ success: false, message: "Error during login" });
-      }
-      res.json({ success: true, message: "Login successful" });
-    });
+    res.json({ success: true, message: "Login successful" });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ success: false, message: "Error during login" });
   }
 });
 
-// Middleware to check if user is logged in
-const isAuthenticated = (req, res, next) => {
-  if (req.session && req.session.userid) {
-    return next();
-  }
-  res.status(401).json({ success: false, message: "Not logged in" });
-};
-
 // Logout endpoint
 app.get("/logout", (req, res) => {
+  console.log("hi");
   req.session.destroy((err) => {
     if (err) {
       return res
         .status(500)
         .json({ success: false, message: "Error logging out" });
     }
-    res.clearCookie("connect.sid"); // Clear session cookie
+    //res.json({ success: true, message: "Logged out successfully" });
     res.sendFile(path.join(__dirname, "landing.html"));
   });
 });
 
 // Check session endpoint
 app.get("/check-session", (req, res) => {
-  if (req.session && req.session.userid) {
+  if (req.session.userid) {
     res.json({
       loggedIn: true,
       userid: req.session.userid,
@@ -255,9 +187,14 @@ app.get("/check-session", (req, res) => {
     res.json({ loggedIn: false });
   }
 });
+// Add these endpoints to server.js
 
-// Save itinerary - Use authentication middleware
-app.post("/save-itinerary", isAuthenticated, async (req, res) => {
+// Save itinerary
+app.post("/save-itinerary", async (req, res) => {
+  if (!req.session.userid) {
+    return res.status(401).json({ success: false, message: "Not logged in" });
+  }
+
   const { location, startDate, numDays, days } = req.body;
 
   try {
@@ -284,14 +221,14 @@ app.post("/save-itinerary", isAuthenticated, async (req, res) => {
         [
           itineraryId,
           day.dayNumber,
-          day.hotel?.name || null,
-          day.hotel?.photo || null,
-          day.restaurant?.name || null,
-          day.restaurant?.photo || null,
-          day.attraction?.name || null,
-          day.attraction?.photo || null,
-          day.activity?.name || null,
-          day.activity?.photo || null,
+          day.hotel.name || null,
+          day.hotel.photo || null,
+          day.restaurant.name || null,
+          day.restaurant.photo || null,
+          day.attraction.name || null,
+          day.attraction.photo || null,
+          day.activity.name || null,
+          day.activity.photo || null,
         ]
       );
     }
@@ -305,8 +242,12 @@ app.post("/save-itinerary", isAuthenticated, async (req, res) => {
   }
 });
 
-// Get user's itineraries - Use authentication middleware
-app.get("/user-itineraries", isAuthenticated, async (req, res) => {
+// Get user's itineraries
+app.get("/user-itineraries", async (req, res) => {
+  if (!req.session.userid) {
+    return res.status(401).json({ success: false, message: "Not logged in" });
+  }
+
   try {
     const result = await pool.query(
       `SELECT i.*, 
@@ -334,8 +275,14 @@ app.get("/user-itineraries", isAuthenticated, async (req, res) => {
   }
 });
 
-// Create a new trip group - Use authentication middleware
-app.post("/create-group", isAuthenticated, async (req, res) => {
+// budget_tracker_routes.js - Add these to your server.js file
+
+// Create a new trip group
+app.post("/create-group", async (req, res) => {
+  if (!req.session.userid) {
+    return res.status(401).json({ success: false, message: "Not logged in" });
+  }
+
   const { name } = req.body;
 
   try {
@@ -357,8 +304,12 @@ app.post("/create-group", isAuthenticated, async (req, res) => {
   }
 });
 
-// Get user's groups - Use authentication middleware
-app.get("/user-groups", isAuthenticated, async (req, res) => {
+// Get user's groups
+app.get("/user-groups", async (req, res) => {
+  if (!req.session.userid) {
+    return res.status(401).json({ success: false, message: "Not logged in" });
+  }
+
   try {
     const result = await pool.query(
       `SELECT g.id, g.name, g.created_at, g.created_by,
@@ -377,8 +328,12 @@ app.get("/user-groups", isAuthenticated, async (req, res) => {
   }
 });
 
-// Get group details - Use authentication middleware
-app.get("/group/:groupId", isAuthenticated, async (req, res) => {
+// Get group details
+app.get("/group/:groupId", async (req, res) => {
+  if (!req.session.userid) {
+    return res.status(401).json({ success: false, message: "Not logged in" });
+  }
+
   const { groupId } = req.params;
 
   try {
@@ -479,8 +434,12 @@ function calculateBalances(expenses, shares) {
   return balances;
 }
 
-// Add member to group - Use authentication middleware
-app.post("/add-member", isAuthenticated, async (req, res) => {
+// Add member to group
+app.post("/add-member", async (req, res) => {
+  if (!req.session.userid) {
+    return res.status(401).json({ success: false, message: "Not logged in" });
+  }
+
   const { groupId, username } = req.body;
 
   try {
@@ -533,8 +492,12 @@ app.post("/add-member", isAuthenticated, async (req, res) => {
   }
 });
 
-// Add expense - Use authentication middleware
-app.post("/add-expense", isAuthenticated, async (req, res) => {
+// Add expense
+app.post("/add-expense", async (req, res) => {
+  if (!req.session.userid) {
+    return res.status(401).json({ success: false, message: "Not logged in" });
+  }
+
   const { groupId, description, amount, date, category, splitWith } = req.body;
 
   try {
@@ -580,8 +543,12 @@ app.post("/add-expense", isAuthenticated, async (req, res) => {
   }
 });
 
-// Get settlement summary - Use authentication middleware
-app.get("/settlement-summary/:groupId", isAuthenticated, async (req, res) => {
+// Get settlement summary
+app.get("/settlement-summary/:groupId", async (req, res) => {
+  if (!req.session.userid) {
+    return res.status(401).json({ success: false, message: "Not logged in" });
+  }
+
   const { groupId } = req.params;
 
   try {
@@ -687,8 +654,12 @@ function calculateSettlements(balances) {
   return settlements;
 }
 
-// Record settlement - Use authentication middleware
-app.post("/record-settlement", isAuthenticated, async (req, res) => {
+// Record settlement
+app.post("/record-settlement", async (req, res) => {
+  if (!req.session.userid) {
+    return res.status(401).json({ success: false, message: "Not logged in" });
+  }
+
   const { groupId, toUser, amount } = req.body;
 
   try {
@@ -717,14 +688,6 @@ app.post("/record-settlement", isAuthenticated, async (req, res) => {
       .status(500)
       .json({ success: false, message: "Error recording settlement" });
   }
-});
-
-// Optional route for debugging sessions
-app.get("/debug-session", (req, res) => {
-  res.json({
-    sessionExists: !!req.session,
-    sessionData: req.session,
-  });
 });
 
 const PORT = 3000;
