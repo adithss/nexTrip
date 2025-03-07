@@ -726,6 +726,61 @@ app.get("/debug-session", (req, res) => {
     sessionData: req.session,
   });
 });
+// Delete group - Use authentication middleware
+app.delete("/delete-group/:groupId", isAuthenticated, async (req, res) => {
+  const { groupId } = req.params;
+
+  try {
+    // Check if user is the creator of the group
+    const groupCheck = await pool.query(
+      "SELECT * FROM trip_groups WHERE id = $1 AND created_by = $2",
+      [groupId, req.session.userid]
+    );
+
+    if (groupCheck.rows.length === 0) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to delete this group",
+      });
+    }
+
+    // Start transaction
+    await pool.query("BEGIN");
+
+    // Delete all expense shares first
+    await pool.query(
+      `
+      DELETE FROM expense_shares
+      WHERE expense_id IN (
+        SELECT id FROM expenses WHERE group_id = $1
+      )
+    `,
+      [groupId]
+    );
+
+    // Delete all expenses
+    await pool.query("DELETE FROM expenses WHERE group_id = $1", [groupId]);
+
+    // Delete all settlements
+    await pool.query("DELETE FROM settlements WHERE group_id = $1", [groupId]);
+
+    // Delete all group members
+    await pool.query("DELETE FROM group_members WHERE group_id = $1", [
+      groupId,
+    ]);
+
+    // Finally, delete the group itself
+    await pool.query("DELETE FROM trip_groups WHERE id = $1", [groupId]);
+
+    await pool.query("COMMIT");
+
+    res.json({ success: true, message: "Group deleted successfully" });
+  } catch (error) {
+    await pool.query("ROLLBACK");
+    console.error("Error deleting group:", error);
+    res.status(500).json({ success: false, message: "Error deleting group" });
+  }
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {

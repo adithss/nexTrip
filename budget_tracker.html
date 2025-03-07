@@ -8,7 +8,10 @@
       href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap"
       rel="stylesheet"
     />
-
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Google+Sans:regular"
+    />
     <link
       href="https://fonts.googleapis.com/css?family=Open Sauce"
       rel="stylesheet"
@@ -20,9 +23,9 @@
     <nav class="navbar">
       <div class="logo">nexTrip</div>
       <div class="nav-links">
-        <a href="#">HOME</a>
+        <a href="home.html">HOME</a>
         <a href="#">ABOUT</a>
-        <a href="budget_tracker.html" class="active">Budget tracking</a>
+        <a href="budget_tracker.html">Budget tracking</a>
         <a href="#">My Docs</a>
         <a href="manage-itineraries.html">MY ITINERARIES</a>
       </div>
@@ -56,10 +59,11 @@
         <h2 id="trip-title">Trip Name</h2>
 
         <div class="dashboard-actions">
-          <button id="split-bill-btn" class="primary-btn">Split a bill</button>
-          <button id="view-expenses-btn" class="primary-btn">
-            View expenses
+          <button id="view-expenses-btn" class="primary-btn active">
+            Expenses
           </button>
+          <button id="split-bill-btn" class="primary-btn">Split a bill</button>
+
           <button id="add-member-btn" class="primary-btn">Add person</button>
         </div>
 
@@ -165,5 +169,17 @@
     </div>
 
     <script src="budget_tracker.js"></script>
+    <script>
+      const buttons = document.querySelectorAll(
+        "#view-expenses-btn, #split-bill-btn, #add-member-btn"
+      ); // Select only these three buttons
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", function () {
+          buttons.forEach((btn) => btn.classList.remove("active")); // Remove 'active' from all three buttons
+          this.classList.add("active"); // Add 'active' to clicked button
+        });
+      });
+    </script>
   </body>
 </html>

@@ -141,12 +141,45 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
+  //   function displayGroups(groups) {
+  //     tripList.innerHTML = "";
+
+  //     if (groups.length === 0) {
+  //       tripList.innerHTML =
+  //         '<p class="no-trips" >No groups found. Create one to get started!</p>';
+  //       return;
+  //     }
+
+  //     groups.forEach((group) => {
+  //       const tripCard = document.createElement("div");
+  //       tripCard.className = "trip-card";
+  //       tripCard.innerHTML = `
+  //                 <h3 style="
+  //     color: wheat;
+  //     text-transform: capitalize;
+  //     padding-bottom: 52px;
+  //     font-size: 2rem;
+  //     padding-top: 1px;
+  // ">${group.name}</h3>
+  //                 <p class="pgroupmember">${group.member_count} members</p>
+  //                 <p class="pcreated">Created: ${new Date(
+  //                   group.created_at
+  //                 ).toLocaleDateString()}</p><br>   <button style="background: linear-gradient(45deg, #f44336, #012c2c); color: white; border: none; padding: 0.2rem 0.4rem;
+  //     font-size: 0.7rem; cursor: pointer; border-radius: 0.5rem; transition: background-color 0.3s;"
+  //             onmouseover="this.style.backgroundColor='darkred'"
+  //             onmouseout="this.style.background='linear-gradient(45deg, #f44336, #012c2c)'">Delete</button>
+  //             `;
+
+  //       tripCard.addEventListener("click", () => openGroupDashboard(group.id));
+  //       tripList.appendChild(tripCard);
+  //     });
+  //   }
   function displayGroups(groups) {
     tripList.innerHTML = "";
 
     if (groups.length === 0) {
       tripList.innerHTML =
-        '<p class="no-trips" >No groups found. Create one to get started!</p>';
+        '<p class="no-trips">No groups found. Create one to get started!</p>';
       return;
     }
 
@@ -154,18 +187,92 @@ document.addEventListener("DOMContentLoaded", function () {
       const tripCard = document.createElement("div");
       tripCard.className = "trip-card";
       tripCard.innerHTML = `
-                <h3>${group.name}</h3>
-                <p>${group.member_count} members</p>
-                <p>Created: ${new Date(
-                  group.created_at
-                ).toLocaleDateString()}</p>
-            `;
+        <h3 style="color: wheat; text-transform: capitalize; padding-bottom: 52px; font-size: 2rem; padding-top: 1px;">${
+          group.name
+        }</h3>
+        <p class="pgroupmember">${group.member_count} members</p>
+        <p class="pcreated">Created: ${new Date(
+          group.created_at
+        ).toLocaleDateString()}</p><br>
+        <button class="delete-group-btn" data-group-id="${
+          group.id
+        }" style="background: transparent; color: white; border: none; padding: 0.2rem 0.4rem; font-size: 0.7rem; cursor: pointer; border-radius: 0.5rem; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'">Delete</button>
+      `;
 
-      tripCard.addEventListener("click", () => openGroupDashboard(group.id));
+      // Add click event to the entire card
+      tripCard.addEventListener("click", (e) => {
+        // Only open dashboard if the click wasn't on the delete button
+        if (!e.target.classList.contains("delete-group-btn")) {
+          openGroupDashboard(group.id);
+        }
+      });
+
       tripList.appendChild(tripCard);
+    });
+
+    // Add event listeners to delete buttons
+    document.querySelectorAll(".delete-group-btn").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        // Stop event propagation to prevent the card click from firing
+        e.stopPropagation();
+
+        const groupId = this.getAttribute("data-group-id");
+        if (
+          confirm(
+            "Are you sure you want to delete this group? This will delete all expenses and cannot be undone."
+          )
+        ) {
+          deleteGroup(groupId);
+        }
+      });
     });
   }
 
+  // The rest of your code remains unchanged
+  async function deleteGroup(groupId) {
+    try {
+      const response = await fetch(`/delete-group/${groupId}`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh the groups list
+        fetchUserGroups();
+        // Show success message
+        alert("Group deleted successfully");
+      } else {
+        alert(data.message || "Failed to delete group");
+      }
+    } catch (error) {
+      console.error("Error deleting group:", error);
+      alert("An error occurred while deleting the group");
+    }
+  }
+
+  async function fetchUserGroups() {
+    try {
+      const response = await fetch("/user-groups", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        displayGroups(data.groups);
+      } else {
+        console.error("Failed to fetch groups:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+    }
+  }
   function openGroupDashboard(groupId) {
     currentGroupId = groupId;
 
@@ -193,8 +300,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Hide all subsections
     splitBillForm.classList.add("hidden");
-    expenseSummary.classList.add("hidden");
+    // expenseSummary.classList.add("hidden");
     addMemberForm.classList.add("hidden");
+    expenseSummary.classList.remove("hidden");
+    showExpenseSummary();
+    // console.log("Dashboard Opened - Expense Summary should be visible");
   }
 
   function showSplitBillForm() {
@@ -356,42 +466,122 @@ document.addEventListener("DOMContentLoaded", function () {
     balancesContent.classList.add("hidden");
   }
 
+  // function displayBalanceSummary(data) {
+  //   // Display user balances
+  //   userBalances.innerHTML = "";
+
+  //   Object.entries(data.balances).forEach(([userid, balance]) => {
+  //     const userDiv = document.createElement("div");
+  //     userDiv.className = "user-balance";
+
+  //     const netAmount = parseFloat(balance.net).toFixed(2);
+  //     const statusClass =
+  //       netAmount > 0 ? "positive" : netAmount < 0 ? "negative" : "neutral";
+
+  //     userDiv.innerHTML = `
+  //               <div class="balance-user">${userid}</div>
+  //               <div class="balance-details">
+  //                   <div>Paid: $${parseFloat(balance.paid).toFixed(2)}</div>
+  //                   <div>Owed: $${parseFloat(balance.owed).toFixed(2)}</div>
+  //               </div>
+  //               <div class="balance-net ${statusClass}">
+  //                   ${
+  //                     netAmount > 0
+  //                       ? "Gets back"
+  //                       : netAmount < 0
+  //                       ? "Owes"
+  //                       : "Settled"
+  //                   }:
+  //                   $${Math.abs(netAmount)}
+  //               </div>
+  //           `;
+
+  //     userBalances.appendChild(userDiv);
+  //   });
+
+  //   // Display settlements
+  //   settlementsList.innerHTML = "";
+
+  //   if (data.settlements.length === 0) {
+  //     settlementsList.innerHTML = "<p>All balances are settled!</p>";
+  //     return;
+  //   }
+
+  //   data.settlements.forEach((settlement) => {
+  //     const settlementDiv = document.createElement("div");
+  //     settlementDiv.className = "settlement-item";
+  //     settlementDiv.innerHTML = `
+  //               <div>${settlement.from} pays ${settlement.to}</div>
+  //               <div class="settlement-amount">$${parseFloat(
+  //                 settlement.amount
+  //               ).toFixed(2)}</div>
+  //           `;
+
+  //     settlementsList.appendChild(settlementDiv);
+  //   });
+  // }
   function displayBalanceSummary(data) {
-    // Display user balances
+    // Clear previous content
     userBalances.innerHTML = "";
 
+    // Create a container for user balance tables
+    const userBalanceTablesContainer = document.createElement("div");
+    userBalanceTablesContainer.className = "user-balance-tables-container";
+
+    // Process each user's balance
     Object.entries(data.balances).forEach(([userid, balance]) => {
-      const userDiv = document.createElement("div");
-      userDiv.className = "user-balance";
+      // Create a table for each user
+      const userTableDiv = document.createElement("div");
+      userTableDiv.className = "user-balance-table";
 
-      const netAmount = parseFloat(balance.net).toFixed(2);
-      const statusClass =
-        netAmount > 0 ? "positive" : netAmount < 0 ? "negative" : "neutral";
+      // Create table structure
+      const tableContent = `
+            <div class="table-header">${userid}</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Due</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${Object.entries(data.balances)
+                      .filter(([otherUserid]) => otherUserid !== userid)
+                      .map(([otherUserid, otherBalance]) => {
+                        // Calculate the amount this user owes to other users
+                        const amountOwed = calculateAmountOwed(
+                          data.balances,
+                          userid,
+                          otherUserid
+                        );
+                        return `
+                                <tr>
+                                    <td>${otherUserid}</td>
+                                    <td>${
+                                      amountOwed > 0
+                                        ? "$" + amountOwed.toFixed(2)
+                                        : "-"
+                                    }</td>
+                                </tr>
+                            `;
+                      })
+                      .join("")}
+                </tbody>
+            </table>
+            <div class="total-expense">Total Expense: $${parseFloat(
+              balance.paid
+            ).toFixed(2)}</div>
+        `;
 
-      userDiv.innerHTML = `
-                <div class="balance-user">${userid}</div>
-                <div class="balance-details">
-                    <div>Paid: $${parseFloat(balance.paid).toFixed(2)}</div>
-                    <div>Owed: $${parseFloat(balance.owed).toFixed(2)}</div>
-                </div>
-                <div class="balance-net ${statusClass}">
-                    ${
-                      netAmount > 0
-                        ? "Gets back"
-                        : netAmount < 0
-                        ? "Owes"
-                        : "Settled"
-                    }: 
-                    $${Math.abs(netAmount)}
-                </div>
-            `;
-
-      userBalances.appendChild(userDiv);
+      userTableDiv.innerHTML = tableContent;
+      userBalanceTablesContainer.appendChild(userTableDiv);
     });
+
+    // Add the container to the main balances div
+    userBalances.appendChild(userBalanceTablesContainer);
 
     // Display settlements
     settlementsList.innerHTML = "";
-
     if (data.settlements.length === 0) {
       settlementsList.innerHTML = "<p>All balances are settled!</p>";
       return;
@@ -401,14 +591,28 @@ document.addEventListener("DOMContentLoaded", function () {
       const settlementDiv = document.createElement("div");
       settlementDiv.className = "settlement-item";
       settlementDiv.innerHTML = `
-                <div>${settlement.from} pays ${settlement.to}</div>
-                <div class="settlement-amount">$${parseFloat(
-                  settlement.amount
-                ).toFixed(2)}</div>
-            `;
-
+            <div>${settlement.from} pays ${settlement.to}</div>
+            <div class="settlement-amount">$${parseFloat(
+              settlement.amount
+            ).toFixed(2)}</div>
+        `;
       settlementsList.appendChild(settlementDiv);
     });
+  }
+
+  // Helper function to calculate amount owed between two specific users
+  function calculateAmountOwed(balances, fromUser, toUser) {
+    // This is a simplified calculation and should match your backend logic
+    const netFrom = parseFloat(balances[fromUser].net);
+    const netTo = parseFloat(balances[toUser].net);
+
+    // If fromUser owes money overall and toUser is owed money
+    if (netFrom < 0 && netTo > 0) {
+      // Calculate the amount owed
+      return Math.min(Math.abs(netFrom), netTo);
+    }
+
+    return 0;
   }
 
   function displayExpenseList() {
