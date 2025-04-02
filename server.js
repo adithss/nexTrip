@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const { Pool } = require("pg");
 const cors = require("cors");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const { v2: cloudinary } = require("cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
