@@ -614,7 +614,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     return 0;
   }
-
   function displayExpenseList() {
     if (!currentGroupData || !currentGroupData.expenses) return;
 
@@ -631,25 +630,56 @@ document.addEventListener("DOMContentLoaded", function () {
       const expenseDiv = document.createElement("div");
       expenseDiv.className = "expense-item";
       expenseDiv.innerHTML = `
-                <div class="expense-header">
-                    <div class="expense-description">${
-                      expense.description
-                    }</div>
-                    <div class="expense-amount">$${parseFloat(
-                      expense.amount
-                    ).toFixed(2)}</div>
-                </div>
-                <div class="expense-details">
-                    <div>Paid by: ${expense.paid_by_name}</div>
-                    <div>Date: ${expenseDate}</div>
-                    <div>Category: ${expense.category}</div>
-                </div>
-            `;
+        <div class="expense-header">
+            <div class="expense-description">${expense.description}</div>
+            <div class="expense-amount">$${parseFloat(expense.amount).toFixed(
+              2
+            )}</div>
+        </div>
+        <div class="expense-details">
+            <div>Paid by: ${expense.paid_by_name}</div>
+            <div>Date: ${expenseDate}</div>
+            <div>Category: ${expense.category}</div>
+            <button class="delete-expense-btn" data-expense-id="${
+              expense.id
+            }">Delete</button>
+        </div>
+      `;
 
       expensesList.appendChild(expenseDiv);
     });
-  }
 
+    // Add event listeners to the delete buttons
+    document.querySelectorAll(".delete-expense-btn").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.stopPropagation(); // Prevent event bubbling
+        const expenseId = this.getAttribute("data-expense-id");
+        if (confirm("Are you sure you want to delete this expense?")) {
+          deleteExpense(expenseId);
+        }
+      });
+    });
+  }
+  function deleteExpense(expenseId) {
+    fetch(`/delete-expense/${expenseId}`, {
+      method: "DELETE",
+      credentials: "include", // Include session cookies
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Refresh group data to update the expenses list and balances
+          openGroupDashboard(currentGroupId);
+          alert("Expense deleted successfully");
+        } else {
+          alert(data.message || "Failed to delete expense");
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting expense:", error);
+        alert("An error occurred while deleting the expense");
+      });
+  }
   function showAddMemberForm() {
     // Hide other subsections
     splitBillForm.classList.add("hidden");

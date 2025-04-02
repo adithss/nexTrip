@@ -8,12 +8,12 @@
 
 body {
   background-image: url(blur.png);
-  min-height: 130vh;
+  min-height: 100vh;
   overflow-x: hidden;
   width: 100vw;
-  background-repeat: repeat-y;
-
+  background-repeat: no-repeat;
   background-size: cover;
+  background-attachment: fixed;
 }
 
 .navbar {
@@ -30,7 +30,11 @@ body {
   font-weight: bold;
   font-size: 1.5rem;
 }
-
+.logo img {
+  height: 0.8rem;
+  margin-right: 2.5rem;
+  scale: 8;
+}
 .nav-links {
   display: flex;
   gap: 2rem;
@@ -40,6 +44,7 @@ body {
 }
 
 .nav-links a {
+  font-family: "raleway";
   color: white;
   text-decoration: none;
   padding: 0.5rem 1rem;
@@ -460,4 +465,172 @@ h3 {
 h3:hover {
   transform: scale(1.05);
   text-decoration: underline;
+}
+h4 {
+  color: wheat;
+  transition: all 0.3s ease;
+}
+/* Updated styles for settlement and expenses tabs */
+.settlement-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: linear-gradient(
+    to right,
+    rgba(1, 115, 142, 0.7),
+    rgba(4, 170, 162, 0.7)
+  );
+  margin-bottom: 15px;
+  border-radius: 10px;
+  transition: transform 0.2s ease;
+  color: white;
+}
+
+.settlement-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.settlement-amount {
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+/* Expense item styling */
+.expense-item {
+  padding: 15px;
+  background: linear-gradient(
+    to right,
+    rgba(1, 115, 142, 0.7),
+    rgba(4, 170, 162, 0.7)
+  );
+  margin-bottom: 15px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.expense-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.expense-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.expense-description {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.expense-amount {
+  font-weight: bold;
+  font-size: 1.2rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+.expense-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-top: 10px;
+}
+
+/* Tab styling */
+.summary-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 30px;
+  padding: 5px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tab-btn {
+  padding: 10px 25px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  opacity: 0.7;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  font-family: "Raleway", sans-serif;
+}
+
+.tab-btn.active {
+  background: linear-gradient(to right, #01738e, #04aaa2);
+  opacity: 1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.tab-btn:hover:not(.active) {
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.tab-content {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  padding: 20px;
+  margin-top: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Additional styling for the close button */
+#close-summary-btn {
+  background: linear-gradient(to right, #01738e, #04aaa2);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+}
+
+#close-summary-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.delete-expense-btn {
+  background: linear-gradient(to right, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 1rem;
+  cursor: pointer;
+  margin-top: 5px;
+  font-size: 0.8rem;
+  margin-left: auto;
+}
+
+.delete-expense-btn:hover {
+  background: linear-gradient(to right, #c0392b, #e74c3c);
+  transform: scale(1.1);
 }

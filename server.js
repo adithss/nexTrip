@@ -1,9 +1,14 @@
+require("dotenv").config();
 const express = require("express");
 const { Pool } = require("pg");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const multer = require("multer");
+const { v2: cloudinary } = require("cloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const path = require("path");
 const session = require("express-session");
+const fs = require("fs");
 
 const app = express();
 app.use(
@@ -27,25 +32,102 @@ app.use(
     },
   })
 );
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "travel_documents",
+    allowed_formats: ["jpg", "png", "pdf"],
+    resource_type: (req, file) => {
+      if (
+        file.mimetype === "application/pdf" ||
+        file.originalname.toLowerCase().endsWith(".pdf")
+      ) {
+        return "raw"; // Use 'raw' for PDFs instead of 'image'
+      }
+      return "image";
+    },
+    public_id: (req, file) => {
+      // Remove extension from filename to avoid duplicates (.pdf.pdf)
+      const fileName = file.originalname;
+      const name = fileName.substring(0, fileName.lastIndexOf(".")) || fileName;
+      return Date.now() + "-" + name;
+    },
+  },
+});
 
+const upload = multer({ storage });
 // Serve static files BEFORE defining specific routes
 app.use(express.static(__dirname));
-
+const isAuthenticated = (req, res, next) => {
+  if (req.session && req.session.userid) {
+    return next();
+  }
+  res.status(401).json({ success: false, message: "Not logged in" });
+  res.sendFile(path.join(__dirname, "landing.html"));
+};
 // Now define specific routes that should override static files
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "landing.html"));
 });
+app.get("/home", isAuthenticated, (req, res) => {
+  // Read the HTML file
+  fs.readFile(path.join(__dirname, "home.html"), "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading home.html:", err);
+      return res.status(500).send("Error loading page");
+    }
+
+    // Make sure to log the key (for debugging only, remove after)
+    console.log("Using Maps API Key:", process.env.GOOGLE_MAPS_API_KEY);
+
+    // Replace the placeholder with the actual API key
+    const modifiedHtml = data.replace(
+      '<script src="https://maps.googleapis.com/maps/api/js?key=googlesecretkeys&libraries=places"></script>',
+      `<script src="https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&libraries=places"></script>`
+    );
+
+    // Send the modified HTML
+    res.send(modifiedHtml);
+  });
+});
+
+app.get("/results", isAuthenticated, (req, res) => {
+  // Read the HTML file
+  fs.readFile(path.join(__dirname, "results.html"), "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading home.html:", err);
+      return res.status(500).send("Error loading page");
+    }
+
+    // Make sure to log the key (for debugging only, remove after)
+    console.log("Using Maps API Key:", process.env.GOOGLE_MAPS_API_KEY);
+
+    // Replace the placeholder with the actual API key
+    const modifiedHtml = data.replace(
+      '<script src="https://maps.googleapis.com/maps/api/js?key=googlesecretkeys&libraries=places"></script>',
+      `<script src="https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&libraries=places"></script>`
+    );
+
+    // Send the modified HTML
+    res.send(modifiedHtml);
+  });
+});
 
 app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(__dirname, "landing.html"));
 });
 
 const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "miniproject",
-  password: "postgres",
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
 
 // Create all necessary tables if they don't exist
@@ -138,6 +220,16 @@ const createTables = async () => {
         settled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS documents (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(50) REFERENCES login(userid),
+        file_name VARCHAR(255) NOT NULL,
+        file_url TEXT NOT NULL,
+        file_type VARCHAR(50),
+        uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
     console.log("All tables created successfully");
   } catch (error) {
@@ -223,12 +315,6 @@ app.post("/login", async (req, res) => {
 });
 
 // Middleware to check if user is logged in
-const isAuthenticated = (req, res, next) => {
-  if (req.session && req.session.userid) {
-    return next();
-  }
-  res.status(401).json({ success: false, message: "Not logged in" });
-};
 
 // Logout endpoint
 app.get("/logout", (req, res) => {
@@ -253,6 +339,62 @@ app.get("/check-session", (req, res) => {
     });
   } else {
     res.json({ loggedIn: false });
+  }
+});
+
+// Upload File Route (Protected)
+app.post(
+  "/upload",
+  isAuthenticated,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const { originalname, mimetype } = req.file;
+      const fileUrl = req.file.path; // Cloudinary URL
+
+      const result = await pool.query(
+        "INSERT INTO documents (user_id, file_name, file_url, file_type) VALUES ($1, $2, $3, $4) RETURNING *",
+        [req.session.userid, originalname, fileUrl, mimetype]
+      );
+
+      res.json(result.rows[0]);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+// Fetch User-Specific Documents (Protected)
+app.get("/documents", isAuthenticated, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM documents WHERE user_id = $1",
+      [req.session.userid]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete Document (Protected)
+app.delete("/document/:id", isAuthenticated, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const doc = await pool.query(
+      "SELECT * FROM documents WHERE id = $1 AND user_id = $2",
+      [id, req.session.userid]
+    );
+    if (doc.rows.length === 0)
+      return res.status(404).json({ error: "Document not found" });
+
+    const publicId = doc.rows[0].file_url.split("/").pop().split(".")[0];
+    await cloudinary.uploader.destroy(publicId);
+    await pool.query("DELETE FROM documents WHERE id = $1", [id]);
+
+    res.json({ message: "Document deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -304,6 +446,15 @@ app.post("/save-itinerary", isAuthenticated, async (req, res) => {
     res.status(500).json({ success: false, message: "Error saving itinerary" });
   }
 });
+app.get("/budget_tracker", (req, res) => {
+  res.sendFile(path.join(__dirname, "budget_tracker.html"));
+});
+app.get("/file", (req, res) => {
+  res.sendFile(path.join(__dirname, "file.html"));
+});
+app.get("/manage-itineraries", (req, res) => {
+  res.sendFile(path.join(__dirname, "manage-itineraries.html"));
+});
 
 // Get user's itineraries - Use authentication middleware
 app.get("/user-itineraries", isAuthenticated, async (req, res) => {
@@ -333,6 +484,50 @@ app.get("/user-itineraries", isAuthenticated, async (req, res) => {
       .json({ success: false, message: "Error fetching itineraries" });
   }
 });
+// Delete itinerary - Use authentication middleware
+app.delete(
+  "/delete-itinerary/:itineraryId",
+  isAuthenticated,
+  async (req, res) => {
+    const { itineraryId } = req.params;
+
+    try {
+      // Check if user is the owner of the itinerary
+      const itineraryCheck = await pool.query(
+        "SELECT * FROM itineraries WHERE id = $1 AND user_id = $2",
+        [itineraryId, req.session.userid]
+      );
+
+      if (itineraryCheck.rows.length === 0) {
+        return res.status(403).json({
+          success: false,
+          message: "You don't have permission to delete this itinerary",
+        });
+      }
+
+      // Start transaction
+      await pool.query("BEGIN");
+
+      // Delete all daily activities first
+      await pool.query("DELETE FROM daily_activities WHERE itinerary_id = $1", [
+        itineraryId,
+      ]);
+
+      // Then delete the itinerary
+      await pool.query("DELETE FROM itineraries WHERE id = $1", [itineraryId]);
+
+      await pool.query("COMMIT");
+
+      res.json({ success: true, message: "Itinerary deleted successfully" });
+    } catch (error) {
+      await pool.query("ROLLBACK");
+      console.error("Error deleting itinerary:", error);
+      res
+        .status(500)
+        .json({ success: false, message: "Error deleting itinerary" });
+    }
+  }
+);
 
 // Create a new trip group - Use authentication middleware
 app.post("/create-group", isAuthenticated, async (req, res) => {
@@ -779,6 +974,47 @@ app.delete("/delete-group/:groupId", isAuthenticated, async (req, res) => {
     await pool.query("ROLLBACK");
     console.error("Error deleting group:", error);
     res.status(500).json({ success: false, message: "Error deleting group" });
+  }
+});
+// Delete expense - Use authentication middleware
+app.delete("/delete-expense/:expenseId", isAuthenticated, async (req, res) => {
+  const { expenseId } = req.params;
+
+  try {
+    // Check if expense exists and user is authorized to delete it
+    const expenseCheck = await pool.query(
+      `SELECT e.*
+       FROM expenses e
+       JOIN group_members gm ON e.group_id = gm.group_id
+       WHERE e.id = $1 AND gm.userid = $2`,
+      [expenseId, req.session.userid]
+    );
+
+    if (expenseCheck.rows.length === 0) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to delete this expense",
+      });
+    }
+
+    // Start transaction
+    await pool.query("BEGIN");
+
+    // Delete all expense shares first
+    await pool.query("DELETE FROM expense_shares WHERE expense_id = $1", [
+      expenseId,
+    ]);
+
+    // Then delete the expense
+    await pool.query("DELETE FROM expenses WHERE id = $1", [expenseId]);
+
+    await pool.query("COMMIT");
+
+    res.json({ success: true, message: "Expense deleted successfully" });
+  } catch (error) {
+    await pool.query("ROLLBACK");
+    console.error("Error deleting expense:", error);
+    res.status(500).json({ success: false, message: "Error deleting expense" });
   }
 });
 

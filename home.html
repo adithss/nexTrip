@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>nexTrip - Dream, Plan, Go</title>
     <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
       rel="stylesheet"
     />
@@ -41,9 +45,15 @@
         font-weight: bold;
         animation: fadeInDown 1s ease;
       }
+      .logo img {
+        height: 0.8rem;
+        margin-right: 2.5rem;
+        scale: 8;
+      }
 
       .nav-links {
         display: flex;
+        font-family: "raleway";
         gap: 2rem;
         animation: fadeInDown 1s ease;
         background: linear-gradient(to right, #01738e, #04aaa2);
@@ -52,6 +62,7 @@
 
       .nav-links a {
         color: white;
+        font-family: "raleway";
         text-decoration: none;
         padding: 0.5rem 1rem;
         border-radius: 25px;
@@ -60,17 +71,25 @@
       }
 
       .nav-links a:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.05);
       }
-
+      .nav-links a.active {
+        background: rgba(255, 255, 255, 0.2);
+      }
       .logout-btn {
         background: linear-gradient(to right, #01738e, #04aaa2);
         color: white;
+        font-family: "raleway";
         border: none;
         padding: 0.5rem 1.5rem;
         border-radius: 25px;
         cursor: pointer;
         animation: fadeInDown 1s ease;
+      }
+      .logout-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(4, 170, 162, 0.3);
       }
 
       .main-container {
@@ -461,13 +480,15 @@
   </head>
   <body>
     <nav class="navbar">
-      <div class="logo">nexTrip</div>
+      <a href="#" class="logo">
+        <img src="logo.png" alt="NexTrip Logo" />
+      </a>
       <div class="nav-links">
-        <a href="home.html" class="active">HOME</a>
-        <a href="#">ABOUT</a>
-        <a href="budget_tracker.html">Budget tracking</a>
-        <a href="#">My Docs</a>
-        <a href="manage-itineraries.html">MY ITINERARIES</a>
+        <a href="/home" class="active">Home</a>
+        <a href="#">About</a>
+        <a href="/budget_tracker">Budget tracking</a>
+        <a href="/file">My Docs</a>
+        <a href="/manage-itineraries">My itineraries</a>
       </div>
       <button onclick="location.href='/logout'" class="logout-btn">
         LOGOUT
@@ -662,7 +683,7 @@
             };
 
             localStorage.setItem("searchParams", JSON.stringify(searchParams));
-            window.location.href = "results.html";
+            window.location.href = "/results";
           } catch (error) {
             if (error.message.includes("destination")) {
               showError(locationInput, error.message);
@@ -747,6 +768,41 @@
         destinationDescription.textContent =
           "Paris lives up to its hype: A city with unbelievable food and culture, plus stunning views everywhere you turn. With 18 arrondissements, its a lot to see in one trip, but each neighborhood has a personality all its own. You cant miss the iconic 7th, where art and history meet—theres the Eiffel Tower, sure, but the impressive Musée du quai Branly is just a short walk away. It houses an amazing collection of indigenous art. Or, hit up Montmartre (the 18th), with its boho shops and cozy brasseries. Its a must-stop on the way up or down from Sacré Cœur. While the French practically invented fine dining, dont skip the street food—Paris has world-class kebabs and falafel. But no matter where you are, be sure to pop into a sidewalk cafe, sip a glass of wine, and people watch—its the way to get a taste of true Parisian culture.";
       });
+      // Add this to the script section at the bottom of your home.html file
+      document.addEventListener("DOMContentLoaded", () => {
+        // Initialize the autocomplete feature
+        const locationInput = document.getElementById("location");
+        if (locationInput) {
+          const autocomplete = new google.maps.places.Autocomplete(
+            locationInput,
+            {
+              types: ["(cities)"], // Restrict to cities only
+            }
+          );
+
+          // When a place is selected, store the place ID and coordinates
+          autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+            if (!place.geometry) {
+              return;
+            }
+
+            // Store the place details to use in results page
+            localStorage.setItem(
+              "selectedPlace",
+              JSON.stringify({
+                placeId: place.place_id,
+                name: place.name,
+                location: {
+                  lat: place.geometry.location.lat(),
+                  lng: place.geometry.location.lng(),
+                },
+              })
+            );
+          });
+        }
+      });
     </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=googlesecretkeys&libraries=places"></script>
   </body>
 </html>

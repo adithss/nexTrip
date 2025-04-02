@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>nexTrip - Manage Itineraries</title>
     <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
       rel="stylesheet"
     />
@@ -16,10 +20,16 @@
         box-sizing: border-box;
         font-family: "Arial", sans-serif;
       }
+
       body {
-        background-image: url("blur.png");
+        background-image: url(blur.png);
         min-height: 100vh;
+        overflow-x: hidden;
+        width: 100vw;
+        background-repeat: no-repeat;
+        background-size: cover;
       }
+
       .navbar {
         display: flex;
         justify-content: space-between;
@@ -29,61 +39,148 @@
         z-index: 1000;
         background: rgba(0, 0, 0, 0.1);
       }
+
       .logo {
         color: white;
         font-size: 1.5rem;
         font-weight: bold;
-        text-decoration: none;
+        animation: fadeInDown 1s ease;
       }
+      .logo img {
+        height: 0.8rem;
+        margin-right: 2.5rem;
+        scale: 8;
+      }
+
       .nav-links {
         display: flex;
+        font-family: "raleway";
         gap: 2rem;
+        animation: fadeInDown 1s ease;
+        background: linear-gradient(to right, #01738e, #04aaa2);
+        border-radius: 50px;
       }
+
       .nav-links a {
         color: white;
+        font-family: "raleway";
         text-decoration: none;
         padding: 0.5rem 1rem;
         border-radius: 25px;
         transition: background 0.3s;
-      }
-      .nav-links a:hover {
-        background: rgba(255, 255, 255, 0.1);
+        font-size: 1.02vw;
       }
 
+      .nav-links a:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.05);
+      }
+      .nav-links a.active {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .logout-btn {
+        background: linear-gradient(to right, #01738e, #04aaa2);
+        color: white;
+        font-family: "raleway";
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        cursor: pointer;
+        animation: fadeInDown 1s ease;
+      }
+      .logout-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(4, 170, 162, 0.3);
+      }
       /* New styles for manage itineraries */
       .itinerary-list {
         padding: 100px 5% 2rem;
       }
 
       .itinerary-preview {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin: 1rem 0;
+        background: linear-gradient(to right, #01738e, #04aaa2);
+        border-radius: 1.2vw;
+        text-align: center;
+        color: wheat;
+        text-transform: capitalize;
+        font-size: 0.9rem;
+        padding: 1px;
         cursor: pointer;
-        transition: transform 0.3s;
+        transition: all 0.1s ease;
+        width: 21vw;
       }
 
       .itinerary-preview:hover {
-        transform: translateX(10px);
+        transform: scale(1.05);
+        box-shadow: #012c2c;
       }
-
       h1 {
         color: white;
         margin-bottom: 2rem;
       }
+      #itinerariesList {
+        /* background: linear-gradient(to right, #01738e, #04aaa2); */
+        padding: 20px;
+        border-radius: 10px;
+        align-content: center;
+        /* color: white; */
+        cursor: pointer;
+
+        transition: all 0.1s ease;
+        display: flex;
+        gap: 1vw;
+      }
+
+      /* #itinerariesList:hover {
+        transform: scale(1.05);
+        box-shadow: #012c2c;
+      } */
+
+      .delete-btn {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: background 0.3s;
+        font-size: 0.6vw;
+      }
+
+      .delete-btn:hover {
+        background: #8b362c;
+      }
+      /* 
+      .itinerary-preview {
+        background: transparent;
+        border-radius: 10px;
+        text-align: center;
+        color: wheat;
+        text-transform: capitalize;
+        font-size: 0.9rem;
+        padding-top: 1px;
+        cursor: pointer;
+        transition: all 0.1s ease;
+        margin-bottom: 20px;
+      } */
     </style>
   </head>
   <body>
     <nav class="navbar">
-      <a href="home.html" class="logo">nexTrip</a>
+      <a href="#" class="logo">
+        <img src="logo.png" alt="NexTrip Logo" />
+      </a>
       <div class="nav-links">
-        <a href="home.html">HOME</a>
-        <a href="#">ABOUT</a>
-        <a href="#">Budget tracking</a>
-        <a href="#">My Docs</a>
-        <a href="#" class="active">MY ITINERARIES</a>
+        <a href="/home">Home</a>
+        <a href="#">About</a>
+        <a href="/budget_tracker">Budget tracking</a>
+        <a href="/file">My Docs</a>
+        <a href="/manage-itineraries" class="active">My itineraries</a>
       </div>
+      <button onclick="location.href='/logout'" class="logout-btn">
+        LOGOUT
+      </button>
     </nav>
 
     <div class="itinerary-list">
