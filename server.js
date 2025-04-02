@@ -10,7 +10,7 @@ const path = require("path");
 const session = require("express-session");
 const fs = require("fs");
 
-// const app = express();
+const app = express();
 // app.use(
 //   cors({
 //     origin: "http://localhost:3000",
@@ -21,7 +21,7 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? "https://nextrip.onrender.com" // Direct string, not an environment variable
+        ? process.env.RENDER_EXTERNAL_URL || "https://nextrip.onrender.com"
         : "http://localhost:3000",
     credentials: true,
   })
