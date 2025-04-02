@@ -10,10 +10,19 @@ const path = require("path");
 const session = require("express-session");
 const fs = require("fs");
 
-const app = express();
+// const app = express();
+// app.use(
+//   cors({
+//     origin: "http://localhost:3000",
+//     credentials: true,
+//   })
+// );
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin:
+      process.env.NODE_ENV === "production"
+        ? "https://nextrip.onrender.com" // Direct string, not an environment variable
+        : "http://localhost:3000",
     credentials: true,
   })
 );
@@ -122,12 +131,18 @@ app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "landing.html"));
 });
 
+// const pool = new Pool({
+//   user: process.env.DB_USER,
+//   host: process.env.DB_HOST,
+//   database: process.env.DB_NAME,
+//   password: process.env.DB_PASSWORD,
+//   port: process.env.DB_PORT,
+// });
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Needed for Render PostgreSQL
+  },
 });
 
 // Create all necessary tables if they don't exist
