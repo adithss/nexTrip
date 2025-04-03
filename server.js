@@ -13,7 +13,7 @@ const fs = require("fs");
 const app = express();
 // app.use(
 //   cors({
-//     origin: "http://localhost:3000",
+//     origin: "https://nextrip.onrender.com",
 //     credentials: true,
 //   })
 // );
@@ -22,7 +22,7 @@ app.use(
     origin:
       process.env.NODE_ENV === "production"
         ? process.env.RENDER_EXTERNAL_URL || "https://nextrip.onrender.com"
-        : "http://localhost:3000",
+        : "https://nextrip.onrender.com",
     credentials: true,
   })
 );
