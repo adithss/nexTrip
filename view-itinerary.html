@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nexTrip - My Itineraries</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Arial", sans-serif;
+      }
+
+      body {
+        background-image: url("blur.png");
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 5%;
+        position: fixed;
+        width: 100%;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      .logo {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        animation: fadeInDown 1s ease;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        animation: fadeInDown 1s ease;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        transition: background 0.3s;
+      }
+
+      .nav-links a:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .logout-btn {
+        background: #3cc4a0;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        cursor: pointer;
+        animation: fadeInDown 1s ease;
+      }
+
+      .main-container {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+      }
+
+      .content-card {
+        width: 90%;
+        max-width: 1200px;
+        height: 80vh;
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        animation: fadeIn 1.5s ease;
+      }
+
+      .image-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+
+      .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 20px;
+      }
+
+      .hero-content {
+        position: absolute;
+        top: 20%;
+        left: 5%;
+        color: white;
+        z-index: 2;
+        animation: fadeInLeft 1.5s ease;
+      }
+
+      .hero-content h1 {
+        font-size: 4rem;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .hero-content p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      .search-bar {
+        position: absolute;
+        bottom: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(60, 196, 160, 0.9);
+        padding: 1rem;
+        border-radius: 50px;
+        display: flex;
+        gap: 1rem;
+        width: 90%;
+        max-width: 1000px;
+        animation: fadeInUp 1.5s ease;
+      }
+
+      .search-group {
+        flex: 1;
+        position: relative;
+      }
+
+      .search-group input,
+      .search-group .date-input {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: none;
+        border-radius: 25px;
+        background: white;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .search-group input.error {
+        border: 2px solid #ff4444;
+        background-color: #fff8f8;
+      }
+
+      .search-group input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(60, 196, 160, 0.3);
+      }
+
+      .error-message {
+        position: absolute;
+        bottom: -20px;
+        left: 10px;
+        color: #ff4444;
+        font-size: 0.8rem;
+        display: none;
+      }
+
+      .search-btn {
+        background: white;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease;
+      }
+
+      .search-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .search-btn svg {
+        width: 24px;
+        height: 24px;
+        fill: #3cc4a0;
+      }
+
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.3) 0%,
+          rgba(0, 0, 0, 0.1) 50%,
+          rgba(0, 0, 0, 0.3) 100%
+        );
+        border-radius: 20px;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translate(-50%, 50px);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, 0);
+        }
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      /* Include the same navbar styles from home.html */
+      .itinerary-container {
+        padding: 100px 5% 2rem;
+      }
+
+      .itinerary-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.5s ease;
+      }
+
+      .itinerary-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(60, 196, 160, 0.2);
+      }
+
+      .day-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        border: 1px solid rgba(60, 196, 160, 0.2);
+      }
+
+      .activity-item {
+        margin: 1rem 0;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .activity-photo {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+
+      .no-itineraries {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="home.html" class="logo">nexTrip</a>
+      <div class="nav-links">
+        <a href="home.html">HOME</a>
+        <a href="#">ABOUT</a>
+        <a href="#">SERVICES</a>
+        <a href="#">TOUR</a>
+        <a href="itinerary.html">CREATE ITINERARY</a>
+      </div>
+    </nav>
+
+    <div class="itinerary-container">
+      <h1>My Itineraries</h1>
+      <div id="itinerariesList"></div>
+    </div>
+
+    <script src="view-itinerary.js"></script>
+  </body>
+</html>
