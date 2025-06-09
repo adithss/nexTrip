@@ -8,6 +8,11 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
       rel="stylesheet"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
       * {
         margin: 0;
@@ -17,9 +22,12 @@
       }
 
       body {
-        background-image: url("blur.png");
+        background-image: url(blur.png);
         min-height: 100vh;
         overflow-x: hidden;
+        width: 100vw;
+        background-repeat: no-repeat;
+        background-size: cover;
       }
 
       .navbar {
@@ -38,174 +46,209 @@
         font-weight: bold;
         animation: fadeInDown 1s ease;
       }
+      .logo img {
+        height: 0.8rem;
+        margin-right: 2.5rem;
+        scale: 8;
+      }
 
       .nav-links {
         display: flex;
+        font-family: "raleway";
         gap: 2rem;
         animation: fadeInDown 1s ease;
+        background: linear-gradient(to right, #01738e, #04aaa2);
+        border-radius: 50px;
       }
 
       .nav-links a {
         color: white;
+        font-family: "raleway";
         text-decoration: none;
         padding: 0.5rem 1rem;
         border-radius: 25px;
         transition: background 0.3s;
+        font-size: 1.02vw;
       }
 
       .nav-links a:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.05);
       }
-
+      .nav-links a.active {
+        background: rgba(255, 255, 255, 0.2);
+      }
       .logout-btn {
-        background: #3cc4a0;
+        background: linear-gradient(to right, #01738e, #04aaa2);
         color: white;
+        font-family: "raleway";
         border: none;
         padding: 0.5rem 1.5rem;
         border-radius: 25px;
         cursor: pointer;
         animation: fadeInDown 1s ease;
       }
-
-      .main-container {
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
+      .logout-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(4, 170, 162, 0.3);
       }
-
-      .content-card {
-        width: 90%;
+      .itinerary-container {
+        padding: 100px 5% 2rem;
         max-width: 1200px;
-        height: 80vh;
-        position: relative;
+        margin: 0 auto;
+      }
+
+      .itinerary-container h1 {
+        color: white;
+        margin-bottom: 2rem;
+        animation: fadeInDown 1s ease;
+      }
+
+      .itinerary-card {
+        background: rgba(255, 255, 255, 0.95);
         border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.5s ease;
+        transition: transform 0.3s ease-in-out;
+      }
+      .itinerary-card:hover {
+        transform: scale(1.01);
+      }
+      .itinerary-header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(60, 196, 160, 0.2);
+      }
+
+      .itinerary-title {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        font-size: 1.8rem;
+      }
+
+      .itinerary-meta {
+        color: #666;
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .itinerary-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.1rem;
+      }
+
+      .day-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+        border: 1px solid rgba(60, 196, 160, 0.2);
+      }
+
+      .day-header {
+        background: linear-gradient(to right, #01738e, #04aaa2);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin: -2rem -2rem 1.5rem -2rem;
+      }
+
+      .day-header h3 {
+        font-size: 1.5rem;
+        margin: 0;
+      }
+
+      .activities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .activity-card {
+        background: #f8f9fa;
+        border-radius: 12px;
         overflow: hidden;
-        animation: fadeIn 1.5s ease;
+        transition: transform 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       }
 
-      .image-container {
-        width: 100%;
-        height: 100%;
-        position: relative;
+      .activity-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 
-      .image-container img {
+      .activity-photo-container {
+        height: 200px;
+        overflow: hidden;
+      }
+
+      .activity-photo {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 20px;
+        transition: transform 0.3s;
       }
 
-      .hero-content {
-        position: absolute;
-        top: 20%;
-        left: 5%;
-        color: white;
-        z-index: 2;
-        animation: fadeInLeft 1.5s ease;
-      }
-
-      .hero-content h1 {
-        font-size: 4rem;
-        line-height: 1.2;
-        margin-bottom: 1rem;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      }
-
-      .hero-content p {
-        font-size: 1.2rem;
-        margin-bottom: 2rem;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-      }
-
-      .search-bar {
-        position: absolute;
-        bottom: 10%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(60, 196, 160, 0.9);
-        padding: 1rem;
-        border-radius: 50px;
-        display: flex;
-        gap: 1rem;
-        width: 90%;
-        max-width: 1000px;
-        animation: fadeInUp 1.5s ease;
-      }
-
-      .search-group {
-        flex: 1;
-        position: relative;
-      }
-
-      .search-group input,
-      .search-group .date-input {
-        width: 100%;
-        padding: 0.8rem 1rem;
-        border: none;
-        border-radius: 25px;
-        background: white;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-      }
-
-      .search-group input.error {
-        border: 2px solid #ff4444;
-        background-color: #fff8f8;
-      }
-
-      .search-group input:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(60, 196, 160, 0.3);
-      }
-
-      .error-message {
-        position: absolute;
-        bottom: -20px;
-        left: 10px;
-        color: #ff4444;
-        font-size: 0.8rem;
-        display: none;
-      }
-
-      .search-btn {
-        background: white;
-        border: none;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s ease;
-      }
-
-      .search-btn:hover {
+      .activity-card:hover .activity-photo {
         transform: scale(1.05);
       }
 
-      .search-btn svg {
-        width: 24px;
-        height: 24px;
-        fill: #3cc4a0;
+      .activity-content {
+        padding: 1rem;
       }
 
-      .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(
-          to bottom,
-          rgba(0, 0, 0, 0.3) 0%,
-          rgba(0, 0, 0, 0.1) 50%,
-          rgba(0, 0, 0, 0.3) 100%
-        );
+      .activity-type {
+        color: #01738e;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .activity-name {
+        color: #2c3e50;
+        font-size: 1.125rem;
+        margin: 0;
+      }
+
+      .no-itineraries {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
         border-radius: 20px;
+        margin-top: 2rem;
+      }
+
+      .no-itineraries h2 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+      }
+
+      .no-itineraries p {
+        color: #666;
+        margin-bottom: 2rem;
+      }
+
+      .no-itineraries .btn {
+        display: inline-block;
+        background: #3cc4a0;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        text-decoration: none;
+        margin-top: 1.5rem;
+        transition: transform 0.2s;
+      }
+
+      .no-itineraries .btn:hover {
+        transform: scale(1.05);
       }
 
       @keyframes fadeIn {
@@ -214,28 +257,6 @@
         }
         to {
           opacity: 1;
-        }
-      }
-
-      @keyframes fadeInLeft {
-        from {
-          opacity: 0;
-          transform: translateX(-50px);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translate(-50%, 50px);
-        }
-        to {
-          opacity: 1;
-          transform: translate(-50%, 0);
         }
       }
 
@@ -249,68 +270,38 @@
           transform: translateY(0);
         }
       }
-      /* Include the same navbar styles from home.html */
-      .itinerary-container {
-        padding: 100px 5% 2rem;
-      }
 
-      .itinerary-card {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        animation: fadeIn 0.5s ease;
-      }
+      @media (max-width: 768px) {
+        .itinerary-header {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
 
-      .itinerary-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(60, 196, 160, 0.2);
-      }
+        .activities-grid {
+          grid-template-columns: 1fr;
+        }
 
-      .day-card {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-        border: 1px solid rgba(60, 196, 160, 0.2);
-      }
-
-      .activity-item {
-        margin: 1rem 0;
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .activity-photo {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 10px;
-      }
-
-      .no-itineraries {
-        text-align: center;
-        padding: 2rem;
-        color: #666;
+        .nav-links {
+          display: none;
+        }
       }
     </style>
   </head>
   <body>
     <nav class="navbar">
-      <a href="home.html" class="logo">nexTrip</a>
+      <a href="#" class="logo">
+        <img src="logo.png" alt="NexTrip Logo" />
+      </a>
       <div class="nav-links">
-        <a href="home.html">HOME</a>
-        <a href="#">ABOUT</a>
-        <a href="#">SERVICES</a>
-        <a href="#">TOUR</a>
-        <a href="itinerary.html">CREATE ITINERARY</a>
+        <a href="/home" class="active">Home</a>
+        <a href="#">About</a>
+        <a href="/budget_tracker">Budget tracking</a>
+        <a href="/file">My Docs</a>
+        <a href="/manage-itineraries">My itineraries</a>
       </div>
+      <button onclick="location.href='/logout'" class="logout-btn">
+        LOGOUT
+      </button>
     </nav>
 
     <div class="itinerary-container">
@@ -318,6 +309,117 @@
       <div id="itinerariesList"></div>
     </div>
 
-    <script src="view-itinerary.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        try {
+          const response = await fetch("/user-itineraries");
+          const data = await response.json();
+
+          if (!data.success) {
+            throw new Error(data.message);
+          }
+
+          const container = document.getElementById("itinerariesList");
+
+          if (data.itineraries.length === 0) {
+            container.innerHTML = `
+              <div class="no-itineraries">
+                <h2>No itineraries yet</h2>
+                <p>Start planning your next trip!</p>
+                <a href="/home" class="btn">Plan a Trip</a>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = data.itineraries
+            .map(
+              (itinerary) => `
+                <div class="itinerary-card">
+                  <div class="itinerary-header">
+                    <div>
+                      <h2 class="itinerary-title">${
+                        itinerary.itinerary_name
+                      }</h2>
+                      <div class="itinerary-meta">
+                        <span>📍 ${itinerary.location}</span>
+                        <span>📅 ${formatDate(itinerary.travel_date)}</span>
+                      </div>
+                    </div>
+                    <div class="itinerary-meta">
+                      <span>⏱ ${itinerary.number_of_days} days</span>
+                      <span>✨ Created: ${formatDate(
+                        itinerary.created_at
+                      )}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="days-container">
+                    ${itinerary.days
+                      .map(
+                        (day) => `
+                          <div class="day-card">
+                            <div class="day-header">
+                              <h3>Day ${day.dayNumber}</h3>
+                            </div>
+                            <div class="activities-grid">
+                              ${renderActivity(day.hotel, "Hotel")}
+                              ${renderActivity(day.restaurant, "Restaurant")}
+                              ${renderActivity(
+                                day.attraction,
+                                "Tourist Attraction"
+                              )}
+                              ${renderActivity(day.activity, "Activity")}
+                            </div>
+                          </div>
+                        `
+                      )
+                      .join("")}
+                  </div>
+                </div>
+              `
+            )
+            .join("");
+        } catch (error) {
+          console.error("Error:", error);
+          document.getElementById("itinerariesList").innerHTML = `
+            <div class="no-itineraries">
+              <h2>Error loading itineraries</h2>
+              <p>Please try again later.</p>
+            </div>
+          `;
+        }
+      });
+
+      function renderActivity(activity, type) {
+        if (!activity.name) return "";
+
+        return `
+          <div class="activity-card">
+            ${
+              activity.photo
+                ? `
+                  <div class="activity-photo-container">
+                    <img src="${activity.photo}" alt="${activity.name}" class="activity-photo">
+                  </div>
+                `
+                : ""
+            }
+            <div class="activity-content">
+              <div class="activity-type">${type}</div>
+              <h4 class="activity-name">${activity.name}</h4>
+            </div>
+          </div>
+        `;
+      }
+
+      function formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      }
+    </script>
   </body>
 </html>

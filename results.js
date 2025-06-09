@@ -1,4 +1,6 @@
 // results.js
+// Add these variables near the top of your results.js file
+let placeCache = {}; // To store already fetched results
 document.addEventListener("DOMContentLoaded", () => {
   // Retrieve search parameters from localStorage
   const searchParams = JSON.parse(localStorage.getItem("searchParams"));
@@ -82,14 +84,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Replace your existing getPlacePhotos function with this:
   async function getPlacePhotos(place) {
     return new Promise((resolve) => {
-      if (!place.photos) {
+      if (!place.photos || place.photos.length === 0) {
+        console.log(`No photos available for ${place.name}`);
         resolve([]);
         return;
       }
 
-      const photos = place.photos.map((photo) => {
+      // Take up to 10 photos if available
+      const photosToProcess = place.photos.slice(0, 10);
+
+      const photos = photosToProcess.map((photo) => {
         return new Promise((resolvePhoto) => {
           try {
             const photoUrl = photo.getUrl({
@@ -98,14 +105,24 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             resolvePhoto(photoUrl);
           } catch (error) {
+            console.error(`Error getting photo for ${place.name}:`, error);
             resolvePhoto(null);
           }
         });
       });
 
       Promise.all(photos)
-        .then((photoUrls) => resolve(photoUrls.filter((url) => url !== null)))
-        .catch(() => resolve([]));
+        .then((photoUrls) => {
+          const validUrls = photoUrls.filter((url) => url !== null);
+          console.log(
+            `Retrieved ${validUrls.length} of ${photosToProcess.length} photos for ${place.name}`
+          );
+          resolve(validUrls);
+        })
+        .catch((error) => {
+          console.error(`Failed to get photos for ${place.name}:`, error);
+          resolve([]);
+        });
     });
   }
 
@@ -115,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Get place details for additional information
     const detailsPromise = new Promise((resolve) => {
+      // Replace the existing service.getDetails call in createPlaceCard function with this:
       service.getDetails(
         {
           placeId: place.place_id,
@@ -123,12 +141,15 @@ document.addEventListener("DOMContentLoaded", () => {
             "website",
             "opening_hours",
             "price_level",
+            "photos", // Request more photos
+            // Request editorial summary
           ],
         },
         (result, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK) {
             resolve(result);
           } else {
+            console.error("Error fetching place details:", status);
             resolve({});
           }
         }
@@ -298,6 +319,9 @@ document.addEventListener("DOMContentLoaded", () => {
               placesList.appendChild(card);
             }, i * 200);
           }
+          if (results.length > filteredResults.length) {
+            addShowMoreButton(container, type);
+          }
         } else {
           showError(
             placesList,
@@ -310,6 +334,100 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Search error:", error);
     }
   }
+  // Add this function after your existing searchPlaces function
+  function loadMorePlaces(type, container, page = 1) {
+    const placesList = container.querySelector(".places-list");
+    const loadingElement = document.createElement("div");
+    loadingElement.className = "loading";
+    loadingElement.textContent = "Loading more places...";
+    placesList.appendChild(loadingElement);
+
+    try {
+      const request = {
+        query: `${type} in ${searchParams.location}`,
+        type: type,
+      };
+
+      service.textSearch(request, async (results, status) => {
+        // Remove the loading element
+        placesList.removeChild(loadingElement);
+
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          const maxPriceLevel = Math.ceil(searchParams.maxPrice / 100);
+          // Skip the first 5 places (already shown) and take the next 5
+          const startIndex = page * 5;
+          const filteredResults = results
+            .filter(
+              (place) =>
+                !place.price_level || place.price_level <= maxPriceLevel
+            )
+            .slice(startIndex, startIndex + 5);
+
+          if (filteredResults.length === 0) {
+            const noMoreElement = document.createElement("div");
+            noMoreElement.className = "error";
+            noMoreElement.textContent = "No more places available";
+            placesList.appendChild(noMoreElement);
+
+            // Hide the "Show More" button if it exists
+            const showMoreBtn = container.querySelector(".show-more-btn");
+            if (showMoreBtn) {
+              showMoreBtn.style.display = "none";
+            }
+            return;
+          }
+
+          // Add places with staggered animation
+          for (let i = 0; i < filteredResults.length; i++) {
+            const card = await createPlaceCard(filteredResults[i]);
+            setTimeout(() => {
+              placesList.appendChild(card);
+            }, i * 200);
+          }
+
+          // Update the "Show More" button's page attribute
+          const showMoreBtn = container.querySelector(".show-more-btn");
+          if (showMoreBtn) {
+            showMoreBtn.setAttribute("data-page", page + 1);
+          }
+        } else {
+          const errorElement = document.createElement("div");
+          errorElement.className = "error";
+          errorElement.textContent =
+            "Error loading more places. Please try again later.";
+          placesList.appendChild(errorElement);
+        }
+      });
+    } catch (error) {
+      console.error("Load more error:", error);
+    }
+  }
+
+  // Add this function after the searchPlaces function to add "Show More" buttons
+  function addShowMoreButton(container, type) {
+    // Check if a button already exists
+    if (container.querySelector(".show-more-btn")) {
+      return;
+    }
+
+    const button = document.createElement("button");
+    button.className = "show-more-btn";
+    button.textContent = "Show More";
+    button.setAttribute("data-page", 1);
+    button.setAttribute("data-type", type);
+
+    button.addEventListener("click", function () {
+      const page = parseInt(this.getAttribute("data-page"));
+      const placeType = this.getAttribute("data-type");
+      loadMorePlaces(placeType, container, page);
+    });
+
+    container.appendChild(button);
+  }
+
+  // Modify your existing searchPlaces function to add the "Show More" button
+  // Add this at the end of your searchPlaces function, right before the final closing bracket
+  // Insert this code right after the for loop that adds place cards in the searchPlaces function:
 
   // Define searches for different types of places
   const searches = [

@@ -8,6 +8,11 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
       rel="stylesheet"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
       * {
         margin: 0;
@@ -17,9 +22,12 @@
       }
 
       body {
-        background-image: url("blur.png");
+        background-image: url(blur.png);
         min-height: 100vh;
-        color: #333;
+        overflow-x: hidden;
+        width: 100vw;
+        background-repeat: no-repeat;
+        background-size: cover;
       }
 
       .navbar {
@@ -37,25 +45,52 @@
         font-size: 1.5rem;
         font-weight: bold;
         animation: fadeInDown 1s ease;
-        text-decoration: none;
+      }
+      .logo img {
+        height: 0.8rem;
+        margin-right: 2.5rem;
+        scale: 8;
       }
 
       .nav-links {
         display: flex;
+        font-family: "raleway";
         gap: 2rem;
         animation: fadeInDown 1s ease;
+        background: linear-gradient(to right, #01738e, #04aaa2);
+        border-radius: 50px;
       }
 
       .nav-links a {
         color: white;
+        font-family: "raleway";
         text-decoration: none;
         padding: 0.5rem 1rem;
         border-radius: 25px;
         transition: background 0.3s;
+        font-size: 1.02vw;
       }
 
       .nav-links a:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.05);
+      }
+      .nav-links a.active {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .logout-btn {
+        background: linear-gradient(to right, #01738e, #04aaa2);
+        color: white;
+        font-family: "raleway";
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        cursor: pointer;
+        animation: fadeInDown 1s ease;
+      }
+      .logout-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(4, 170, 162, 0.3);
       }
 
       .search-summary {
@@ -329,22 +364,80 @@
           grid-template-columns: repeat(2, 1fr);
         }
       }
+      /* Add this to your CSS file */
+      .place-summary {
+        margin-top: 10px;
+        font-style: italic;
+        font-size: 0.9em;
+        color: #555;
+        line-height: 1.4;
+      }
+      .show-more-btn {
+        display: block;
+        width: 100%;
+        padding: 0.8rem;
+        background: linear-gradient(to right, #01738e, #04aaa2);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        margin-top: 1rem;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+
+      .show-more-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(4, 170, 162, 0.3);
+      }
+
+      .show-more-btn:active {
+        transform: translateY(0);
+      }
+      .generate-itinerary-btn {
+        background: linear-gradient(to right, #01738e, #04aaa2);
+        color: white;
+        font-family: "raleway";
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 25px;
+        cursor: pointer;
+        animation: fadeInUp 1s ease;
+        margin-top: 1rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .generate-itinerary-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(4, 170, 162, 0.3);
+      }
     </style>
   </head>
   <body>
     <nav class="navbar">
-      <a href="home.html" class="logo">nexTrip</a>
+      <a href="#" class="logo">
+        <img src="logo.png" alt="NexTrip Logo" />
+      </a>
       <div class="nav-links">
-        <a href="#">HOME</a>
-        <a href="#">ABOUT</a>
-        <a href="#">SERVICES</a>
-        <a href="#">TOUR</a>
-        <a href="itinerary.html">generate</a>
+        <a href="home.html">Home</a>
+        <a href="#">About</a>
+        <a href="budget_tracker.html">Budget tracking</a>
+        <a href="file.html">My Docs</a>
+        <a href="manage-itineraries.html">My itineraries</a>
       </div>
+      <button onclick="location.href='/logout'" class="logout-btn">
+        LOGOUT
+      </button>
     </nav>
 
     <div class="search-summary">
       <p class="summary-text" id="summary"></p>
+      <button id="generate-itinerary-btn" class="generate-itinerary-btn">
+        Generate Itinerary
+      </button>
     </div>
 
     <div class="results-container">
@@ -371,7 +464,13 @@
       <div class="photo-navigation" id="photoNav"></div>
     </div>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=key&libraries=places"></script>
     <script src="results.js"></script>
+    <script>
+      document
+        .getElementById("generate-itinerary-btn")
+        .addEventListener("click", function () {
+          window.location.href = "itinerary.html";
+        });
+    </script>
   </body>
 </html>

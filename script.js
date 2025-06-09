@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const data = await response.json();
 
       if (response.ok) {
-        window.location.href = "home.html";
+        window.location.href = "/home";
         // Redirect or update UI as needed
       } else {
         alert(data.message || "Login failed");

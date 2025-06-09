@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="file.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+      rel="stylesheet"
+    />
+    <title>Travel Document Upload</title>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="#" class="logo">
+        <img src="logo.png" alt="NexTrip Logo" />
+      </a>
+      <div class="nav-links">
+        <a href="/home">Home</a>
+        <a href="#">About</a>
+        <a href="/budget_tracker">Budget tracking</a>
+        <a href="/file" class="active">My Docs</a>
+        <a href="/manage-itineraries">My itineraries</a>
+      </div>
+      <button onclick="location.href='/logout'" class="logout-btn">
+        LOGOUT
+      </button>
+    </nav>
+
+    <div class="main-container">
+      <h2>Upload Travel Document</h2>
+
+      <div class="upload-form">
+        <div class="file-input-container">
+          <input type="file" id="fileInput" />
+          <label for="fileInput" class="file-input-label">
+            <span>Choose a file</span>
+          </label>
+        </div>
+        <div
+          id="selectedFiles"
+          class="selected-files-container"
+          style="display: none"
+        >
+          <h4>Selected Files:</h4>
+          <!-- Selected files will be displayed here -->
+        </div>
+        <button onclick="uploadFile()" class="uploadBtn">
+          Upload Document
+        </button>
+      </div>
+
+      <h3>Your Documents</h3>
+      <div id="documents" class="document-container"></div>
+
+      <div id="emptyState" class="empty-state" style="display: none">
+        <p>
+          You don't have any documents yet. Upload your first document above!
+        </p>
+      </div>
+
+      <div id="toast" class="toast"></div>
+    </div>
+
+    <script>
+      async function uploadFile() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+        if (!file) {
+          showToast("Please select a file first!");
+          return;
+        }
+
+        // Show loading indicator
+        const button = document.querySelector("button");
+        const originalText = button.textContent;
+        button.textContent = "Uploading...";
+        button.disabled = true;
+
+        let formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          let response = await fetch("/upload", {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            showToast("Document uploaded successfully!");
+            fileInput.value = "";
+            fetchDocuments();
+          } else {
+            showToast("Upload failed. Please try again.");
+          }
+        } catch (error) {
+          showToast("An error occurred. Please try again.");
+        } finally {
+          // Reset button
+          button.textContent = originalText;
+          button.disabled = false;
+        }
+      }
+
+      async function fetchDocuments() {
+        try {
+          // Show loading indicator
+          const container = document.getElementById("documents");
+          container.innerHTML = '<div class="loader"></div>';
+
+          let response = await fetch("/documents", { credentials: "include" });
+          if (!response.ok) {
+            throw new Error("Failed to fetch documents");
+          }
+
+          let docs = await response.json();
+          container.innerHTML = "";
+
+          const emptyState = document.getElementById("emptyState");
+
+          if (docs.length === 0) {
+            emptyState.style.display = "block";
+            return;
+          }
+
+          emptyState.style.display = "none";
+
+          docs.forEach((doc, index) => {
+            const docElement = document.createElement("div");
+            docElement.className = "document-item";
+            docElement.style.animationDelay = `${0.1 * (index + 1)}s`;
+
+            // Determine if it's a PDF or an image
+            const isPDF =
+              doc.file_type === "application/pdf" ||
+              doc.file_name.toLowerCase().endsWith(".pdf");
+
+            if (isPDF) {
+              // Use Google PDF Viewer for PDFs
+              const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
+                doc.file_url
+              )}&embedded=true`;
+
+              docElement.innerHTML = `
+                <div class="pdf-thumbnail">
+                  <div class="pdf-icon">PDF</div>
+                </div>
+                <div class="document-name">${doc.file_name}</div>
+                <div class="document-actions">
+                  <a href="${googleViewerUrl}" target="_blank">View</a>
+                  <a href="${doc.file_url}" download>Download</a>
+                  <button onclick="deleteFile(${doc.id})">Delete</button>
+                </div>
+              `;
+            } else {
+              // For images, use img tag
+              docElement.innerHTML = `
+                <img src="${doc.file_url}" alt="${doc.file_name}" class="document-preview">
+                <div class="document-name">${doc.file_name}</div>
+                <div class="document-actions">
+                  <a href="${doc.file_url}" target="_blank">View</a>
+                  <a href="${doc.file_url}" download>Download</a>
+                  <button onclick="deleteFile(${doc.id})">Delete</button>
+                </div>
+              `;
+            }
+
+            container.appendChild(docElement);
+          });
+        } catch (error) {
+          showToast("Failed to load documents. Please refresh the page.");
+        }
+      }
+
+      async function deleteFile(id) {
+        try {
+          const response = await fetch(`/document/${id}`, {
+            method: "DELETE",
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            showToast("Document deleted successfully!");
+            fetchDocuments();
+          } else {
+            showToast("Failed to delete document. Please try again.");
+          }
+        } catch (error) {
+          showToast("An error occurred. Please try again.");
+        }
+      }
+
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.style.display = "block";
+
+        // Force a reflow to restart animation
+        toast.offsetHeight;
+        toast.style.animation =
+          "toastIn 0.5s ease, toastOut 0.5s ease 2.5s forwards";
+
+        setTimeout(() => {
+          toast.style.display = "none";
+        }, 3000);
+      }
+      // Add this function to your JavaScript
+      function displaySelectedFiles() {
+        const fileInput = document.getElementById("fileInput");
+        const selectedFilesDiv = document.getElementById("selectedFiles");
+        selectedFilesDiv.innerHTML = "<h4>Selected Files:</h4>";
+
+        if (fileInput.files.length > 0) {
+          selectedFilesDiv.style.display = "block";
+
+          // Convert FileList to Array for easier manipulation
+          const filesArray = Array.from(fileInput.files);
+
+          filesArray.forEach((file, index) => {
+            const fileItem = document.createElement("div");
+            fileItem.className = "selected-file-item";
+            fileItem.dataset.index = index;
+
+            const isPDF =
+              file.type === "application/pdf" ||
+              file.name.toLowerCase().endsWith(".pdf");
+
+            if (isPDF) {
+              fileItem.innerHTML = `
+          <div class="selected-file-preview pdf">
+            <div class="pdf-icon">PDF</div>
+          </div>
+          <div class="selected-file-name">${file.name}</div>
+          <button class="delete-file-btn" onclick="removeSelectedFile(${index})">×</button>
+        `;
+            } else if (file.type.startsWith("image/")) {
+              fileItem.innerHTML = `
+          <div class="selected-file-preview image"></div>
+          <div class="selected-file-name">${file.name}</div>
+          <button class="delete-file-btn" onclick="removeSelectedFile(${index})">×</button>
+        `;
+
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                const img = fileItem.querySelector(".selected-file-preview");
+                img.style.backgroundImage = `url(${e.target.result})`;
+              };
+              reader.readAsDataURL(file);
+            } else {
+              fileItem.innerHTML = `
+          <div class="selected-file-preview file">
+            <div class="file-icon">FILE</div>
+          </div>
+          <div class="selected-file-name">${file.name}</div>
+          <button class="delete-file-btn" onclick="removeSelectedFile(${index})">×</button>
+        `;
+            }
+
+            selectedFilesDiv.appendChild(fileItem);
+          });
+        } else {
+          selectedFilesDiv.style.display = "none";
+        }
+      } // Add this to your script, just before the fetchDocuments() call at the end
+      function removeSelectedFile(index) {
+        const fileInput = document.getElementById("fileInput");
+
+        // Convert FileList to Array for manipulation
+        let filesArray = Array.from(fileInput.files);
+
+        // Remove the file at the specified index
+        filesArray.splice(index, 1);
+
+        // Create a new FileList-like object
+        const dataTransfer = new DataTransfer();
+
+        // Add remaining files to the new FileList
+        filesArray.forEach((file) => {
+          dataTransfer.items.add(file);
+        });
+
+        // Replace the original FileList with our modified version
+        fileInput.files = dataTransfer.files;
+
+        // Update the display
+        displaySelectedFiles();
+
+        if (filesArray.length === 0) {
+          document.getElementById("selectedFiles").style.display = "none";
+        }
+      }
+      document
+        .getElementById("fileInput")
+        .addEventListener("change", displaySelectedFiles);
+      // Initialize the page
+      fetchDocuments();
+    </script>
+  </body>
+</html>
