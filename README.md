@@ -231,16 +231,6 @@ The application implements an intelligent expense splitting system that:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📈 Future Enhancements
-
-- [ ] Mobile app development (React Native)
-- [ ] Real-time chat for group coordination
-- [ ] Weather integration for trip planning
-- [ ] Flight and hotel booking integration
-- [ ] AI-powered trip recommendations
-- [ ] Offline mode support
-- [ ] Multi-currency expense tracking
-- [ ] Trip sharing on social media
 
 ## 📝 License
 
