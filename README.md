@@ -248,10 +248,10 @@ This project is for academic/demo purposes only and is not licensed for commerci
 
 ## 👨‍💻 Developer
 
-**Your Name**
-- GitHub: [@yourusername](https://github.com/adithss)
-- LinkedIn: [Your LinkedIn](linkedin.com/in/adith-sasidharan)
-- Email: your.email@example.com
+**Adith S**
+- GitHub: [@adithss](https://github.com/adithss)
+- LinkedIn: [Adith S](linkedin.com/in/adith-sasidharan)
+- Email: adithsasidharan@gmail.com
 
 ## 🙏 Acknowledgments
 
